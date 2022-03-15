@@ -1,13 +1,11 @@
 package com.lunar.domain.entity;
 
-import java.util.Date;
-
-import java.io.Serializable;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+
+import java.util.Date;
 /**
  * (CommentLike)表实体类
  *
@@ -21,10 +19,8 @@ import com.baomidou.mybatisplus.annotation.TableName;
 @TableName("comment_like")
 public class CommentLike  {
     //用户id(外键)
-@TableId
     private Integer userId;
     //评论id(外键) /两个属性联合做主键
-@TableId
     private Integer commentId;
 
     //点赞类型 0 - 点踩/1 - 点赞
