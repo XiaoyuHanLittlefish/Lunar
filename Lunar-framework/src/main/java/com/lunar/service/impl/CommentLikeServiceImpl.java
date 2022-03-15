@@ -1,6 +1,9 @@
 package com.lunar.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.lunar.domain.entity.CommentLike;
+import com.lunar.mapper.CommentLikeMapper;
+import com.lunar.service.CommentLikeService;
 import org.springframework.stereotype.Service;
 
 /**

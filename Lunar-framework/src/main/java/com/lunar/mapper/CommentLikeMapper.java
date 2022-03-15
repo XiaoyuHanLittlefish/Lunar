@@ -1,6 +1,7 @@
 package com.lunar.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.lunar.domain.entity.CommentLike;
 
 
 /**

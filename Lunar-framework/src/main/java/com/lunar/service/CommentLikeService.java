@@ -1,6 +1,7 @@
 package com.lunar.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.lunar.domain.entity.CommentLike;
 
 
 /**
