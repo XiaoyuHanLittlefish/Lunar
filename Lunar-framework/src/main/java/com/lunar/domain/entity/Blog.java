@@ -1,18 +1,20 @@
 package com.lunar.domain.entity;
 
+import java.util.Date;
+
+import java.io.Serializable;
+
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.Date;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 /**
  * (Blog)表实体类
  *
  * @author makejava
- * @since 2022-02-23 18:31:17
+ * @since 2022-03-30 21:59:15
  */
 @SuppressWarnings("serial")
 @Data
@@ -26,8 +28,8 @@ public class Blog  {
 
     //博客的作者用户id(外键)
     private Integer blogAuthorId;
-    //博客内容的实际存储位置
-    private String blogResource;
+    //博客内容
+    private String blogContent;
     //博客的标题
     private String blogTitle;
     //博客的摘要(150字以内的摘要)

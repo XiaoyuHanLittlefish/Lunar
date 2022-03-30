@@ -8,7 +8,7 @@ import com.lunar.domain.entity.Blog;
  * (Blog)表数据库访问层
  *
  * @author makejava
- * @since 2022-02-23 18:31:18
+ * @since 2022-03-30 21:59:15
  */
 public interface BlogMapper extends BaseMapper<Blog> {
 

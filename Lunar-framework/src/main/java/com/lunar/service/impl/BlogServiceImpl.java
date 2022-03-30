@@ -6,20 +6,21 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lunar.constants.SystemConstants;
 import com.lunar.domain.ResponseResult;
 import com.lunar.domain.entity.Blog;
+import com.lunar.domain.entity.BlogLike;
 import com.lunar.domain.vo.BlogDetailVo;
 import com.lunar.domain.vo.HotBlogVo;
+import com.lunar.enums.AppHttpCodeEnum;
 import com.lunar.mapper.BlogMapper;
-import com.lunar.service.BlogService;
-import com.lunar.service.HasTagService;
-import com.lunar.service.TagService;
-import com.lunar.service.UserService;
+import com.lunar.service.*;
 import com.lunar.utils.BeanCopyUtils;
 import com.lunar.utils.BlogFillUtils;
 import com.lunar.utils.UserFillUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.util.List;
+import java.util.Timer;
 
 /**
  * (Blog)表服务实现类
@@ -38,6 +39,9 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
 
     @Autowired
     private TagService tagService;
+
+    @Autowired
+    private BlogLikeService blogLikeService;
 
     @Override
     public ResponseResult getBlogDetail(Integer blogId) {
@@ -82,7 +86,13 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
     public ResponseResult addNewBlog(Blog blog) {
         //获取token中的userId
         Integer userId = UserFillUtils.getUserIdFromToken();
-        // TODO: 检查blogTitle blogResource blogForm blogType非空
+
+        //如果没有找到userId 返回需要登陆
+        if(userId == null) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.NEED_LOGIN.getCode(), AppHttpCodeEnum.NEED_LOGIN.getMsg());
+        }
+
+        // TODO: 检查blogTitle blogContent blogForm blogType非空
         // TODO: 填充blogDigest blogCreateTime blogVisitNumber blogLikeNumber blogDislikeNumber blogCollectNumber blogShareNumber
         //设置blog的blogAuthorId为userId
         blog.setBlogAuthorId(userId);
@@ -103,5 +113,170 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
         return ResponseResult.okResult();
     }
 
+    @Override
+    public ResponseResult updateBlog(Integer blogId, Blog blog) {
+
+        //获取token中的userId
+        Integer userId = UserFillUtils.getUserIdFromToken();
+
+        //如果没有找到userId 返回需要登陆
+        if(userId == null) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.NEED_LOGIN.getCode(), AppHttpCodeEnum.NEED_LOGIN.getMsg());
+        }
+
+        updateById(blog);
+
+        return ResponseResult.okResult();
+    }
+
+    @Override
+    public ResponseResult likeBlog(Integer blogId) {
+        //获取token中的userId
+        Integer userId = UserFillUtils.getUserIdFromToken();
+
+        //如果没有找到userId 返回需要登陆
+        if(userId == null) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.NEED_LOGIN.getCode(), AppHttpCodeEnum.NEED_LOGIN.getMsg());
+        }
+
+        //判断博客是否存在
+        Blog blog = getById(blogId);
+        if(blog == null) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.SYSTEM_ERROR.getCode(), "博客未找到");
+        }
+
+        //判断是否已经点赞过了
+        if(isLikeBlog(userId, blogId)) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.SYSTEM_ERROR.getCode(), "已经点赞过了");
+        }
+
+        blog.setBlogLikeNumber(blog.getBlogLikeNumber() + 1);
+        BlogLike blogLike = new BlogLike(userId, blogId, 1, new Timestamp(System.currentTimeMillis()));
+
+        updateById(blog);
+        blogLikeService.save(blogLike);
+
+
+        return ResponseResult.okResult();
+    }
+
+    @Override
+    public ResponseResult cancelLikeBlog(Integer blogId) {
+        //获取token中的userId
+        Integer userId = UserFillUtils.getUserIdFromToken();
+
+        //如果没有找到userId 返回需要登陆
+        if(userId == null) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.NEED_LOGIN.getCode(), AppHttpCodeEnum.NEED_LOGIN.getMsg());
+        }
+
+        //判断博客是否存在
+        Blog blog = getById(blogId);
+        if(blog == null) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.SYSTEM_ERROR.getCode(), "博客未找到");
+        }
+
+        //判断是否已经点赞过了
+        if(!isLikeBlog(userId, blogId)) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.SYSTEM_ERROR.getCode(), "还没有点赞博客");
+        }
+
+        blog.setBlogLikeNumber(blog.getBlogLikeNumber() - 1);
+        LambdaQueryWrapper<BlogLike> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(BlogLike::getUserId, userId);
+        queryWrapper.eq(BlogLike::getBlogId, blogId);
+        queryWrapper.eq(BlogLike::getLikeType, 1);
+
+        blogLikeService.remove(queryWrapper);
+        updateById(blog);
+
+        return ResponseResult.okResult();
+    }
+
+    @Override
+    public ResponseResult disikeBlog(Integer blogId) {
+        //获取token中的userId
+        Integer userId = UserFillUtils.getUserIdFromToken();
+
+        //如果没有找到userId 返回需要登陆
+        if(userId == null) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.NEED_LOGIN.getCode(), AppHttpCodeEnum.NEED_LOGIN.getMsg());
+        }
+
+        //判断博客是否存在
+        Blog blog = getById(blogId);
+        if(blog == null) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.SYSTEM_ERROR.getCode(), "博客未找到");
+        }
+
+        //判断是否已经点踩过了
+        if(isDislikeBlog(userId, blogId)) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.SYSTEM_ERROR.getCode(), "已经点踩过了");
+        }
+
+        blog.setBlogDislikeNumber(blog.getBlogDislikeNumber() + 1);
+        BlogLike blogLike = new BlogLike(userId, blogId, 0, new Timestamp(System.currentTimeMillis()));
+
+        updateById(blog);
+        blogLikeService.save(blogLike);
+
+
+        return ResponseResult.okResult();
+    }
+
+    @Override
+    public ResponseResult cancelDislikeBlog(Integer blogId) {
+        //获取token中的userId
+        Integer userId = UserFillUtils.getUserIdFromToken();
+
+        //如果没有找到userId 返回需要登陆
+        if(userId == null) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.NEED_LOGIN.getCode(), AppHttpCodeEnum.NEED_LOGIN.getMsg());
+        }
+
+        //判断博客是否存在
+        Blog blog = getById(blogId);
+        if(blog == null) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.SYSTEM_ERROR.getCode(), "博客未找到");
+        }
+
+        //判断是否已经点踩过了
+        if(!isLikeBlog(userId, blogId)) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.SYSTEM_ERROR.getCode(), "还没有点踩博客");
+        }
+
+        blog.setBlogDislikeNumber(blog.getBlogDislikeNumber() - 1);
+        LambdaQueryWrapper<BlogLike> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(BlogLike::getUserId, userId);
+        queryWrapper.eq(BlogLike::getBlogId, blogId);
+        queryWrapper.eq(BlogLike::getLikeType, 0);
+
+        blogLikeService.remove(queryWrapper);
+        updateById(blog);
+
+        return ResponseResult.okResult();
+    }
+
+    private Boolean isLikeBlog(Integer userId, Integer blogId) {
+        LambdaQueryWrapper<BlogLike> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(BlogLike::getUserId, userId);
+        queryWrapper.eq(BlogLike::getBlogId, blogId);
+        queryWrapper.eq(BlogLike::getLikeType, 1);
+
+        List<BlogLike> blogLikeList = blogLikeService.list(queryWrapper);
+
+        return !blogLikeList.isEmpty();
+    }
+
+    private Boolean isDislikeBlog(Integer userId, Integer blogId) {
+        LambdaQueryWrapper<BlogLike> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(BlogLike::getUserId, userId);
+        queryWrapper.eq(BlogLike::getBlogId, blogId);
+        queryWrapper.eq(BlogLike::getLikeType, 0);
+
+        List<BlogLike> blogLikeList = blogLikeService.list(queryWrapper);
+
+        return !blogLikeList.isEmpty();
+    }
 
 }

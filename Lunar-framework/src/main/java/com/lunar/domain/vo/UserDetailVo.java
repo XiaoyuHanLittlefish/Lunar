@@ -17,6 +17,10 @@ public class UserDetailVo {
     private String userAccount;
     //用户昵称
     private String userName;
+    //用户头像路径
+    private String userAvatar;
+    //用户性别
+    private String userGender;
     //用户出生时间
     private Date userBirthday;
     //用户个性签名

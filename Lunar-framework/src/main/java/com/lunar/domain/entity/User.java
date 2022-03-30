@@ -1,18 +1,20 @@
 package com.lunar.domain.entity;
 
+import java.util.Date;
+
+import java.io.Serializable;
+
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.Date;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 /**
  * (User)表实体类
  *
  * @author makejava
- * @since 2022-02-23 18:31:20
+ * @since 2022-03-30 22:00:26
  */
 @SuppressWarnings("serial")
 @Data
@@ -30,6 +32,10 @@ public class User  {
     private String userPassword;
     //用户昵称
     private String userName;
+    //用户头像路径
+    private String userAvatar;
+    //用户性别
+    private String userGender;
     //用户出生时间
     private Date userBirthday;
     //用户个性签名

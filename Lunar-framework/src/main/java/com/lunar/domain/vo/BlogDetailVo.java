@@ -22,8 +22,8 @@ public class BlogDetailVo {
     private Integer blogAuthorId;
     //博客的作者用户昵称
     private String blogAuthorName;
-    //博客内容的实际存储位置
-    private String blogResource;
+    //博客内容
+    private String blogContent;
     //博客的标题
     private String blogTitle;
     //博客的创建时间戳

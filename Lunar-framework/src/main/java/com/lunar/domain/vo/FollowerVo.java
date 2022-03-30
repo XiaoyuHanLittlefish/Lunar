@@ -14,6 +14,8 @@ public class FollowerVo {
     private Integer userId;
     //用户昵称
     private String userName;
+    //用户头像路径
+    private String userAvatar;
     //用户个性签名
     private String userSignature;
 

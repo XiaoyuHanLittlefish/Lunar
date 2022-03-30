@@ -13,6 +13,8 @@ public class UserVo {
     private Integer userId;
     //用户昵称
     private String userName;
+    //用户头像路径
+    private String userAvatar;
     //用户关注的人数
     private Integer userFollowNumber;
     //用户的粉丝数(关注该用户的人数)

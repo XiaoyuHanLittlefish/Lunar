@@ -20,4 +20,14 @@ public interface BlogService extends IService<Blog> {
     ResponseResult addNewBlog(Blog blog);
 
     ResponseResult deleteBlog(Integer blogId);
+
+    ResponseResult updateBlog(Integer blogId, Blog blog);
+
+    ResponseResult likeBlog(Integer blogId);
+
+    ResponseResult cancelLikeBlog(Integer blogId);
+
+    ResponseResult disikeBlog(Integer blogId);
+
+    ResponseResult cancelDislikeBlog(Integer blogId);
 }

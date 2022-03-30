@@ -3,7 +3,6 @@ package com.lunar.controller;
 import com.lunar.domain.ResponseResult;
 import com.lunar.domain.entity.Blog;
 import com.lunar.service.BlogService;
-import io.swagger.models.auth.In;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,8 +28,34 @@ public class BlogController {
         return blogService.addNewBlog(blog);
     }
 
+    @PutMapping("/{blogId}")
+    public ResponseResult updateBlog(@PathVariable("blogId") Integer blogId,
+                                     @RequestBody Blog blog) {
+        return blogService.updateBlog(blogId, blog);
+    }
+
     @DeleteMapping("/{blogId}")
     public ResponseResult deleteBlog(@PathVariable("blogId") Integer blogId) {
         return blogService.deleteBlog(blogId);
+    }
+
+    @PostMapping("/{blogId}/like")
+    public ResponseResult likeBlog(@PathVariable("blogId") Integer blogId) {
+        return blogService.likeBlog(blogId);
+    }
+
+    @DeleteMapping("/{blogId}/like")
+    public ResponseResult cancelLikeBlog(@PathVariable("blogId") Integer blogId) {
+        return blogService.cancelLikeBlog(blogId);
+    }
+
+    @PostMapping("/{blogId}/dislike")
+    public ResponseResult dislikeBlog(@PathVariable("blogId") Integer blogId) {
+        return blogService.disikeBlog(blogId);
+    }
+
+    @DeleteMapping("/{blogId}/like")
+    public ResponseResult cancelDislikeBlog(@PathVariable("blogId") Integer blogId) {
+        return blogService.cancelDislikeBlog(blogId);
     }
 }
