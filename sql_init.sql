@@ -8,6 +8,8 @@ CREATE TABLE if NOT EXISTS `user`(
 		`user_account` VARCHAR(12) NOT NULL UNIQUE COMMENT '用户手机号',
 		`user_password` VARCHAR(255) NOT NULL COMMENT '用户账号密码',
 		`user_name` VARCHAR(40) NOT NULL COMMENT '用户昵称',
+        `user_avatar` VARCHAR(255) NOT NULL COMMENT '用户头像路径',
+        `user_gender` VARCHAR(10) NOT NULL COMMENT '用户性别',
 		`user_birthday`  TIMESTAMP COMMENT '用户出生时间',
 		`user_signature` VARCHAR(255) COMMENT '用户个性签名', 
 		`user_follow_number` INT NOT NULL DEFAULT(0) COMMENT '用户关注的人数',
@@ -23,7 +25,7 @@ CREATE TABLE if NOT EXISTS `user`(
 CREATE TABLE IF NOT EXISTS `blog`(
 		`blog_id`  INT(6) ZEROFILL AUTO_INCREMENT COMMENT '博客id(主键)',
 		`blog_author_id` INT(6) ZEROFILL NOT NULL COMMENT '博客的作者用户id(外键)',
-		`blog_resource` VARCHAR(255) NOT NULL COMMENT '博客内容的实际存储位置',
+		`blog_content` TEXT NOT NULL COMMENT '博客内容',
 		`blog_title` VARCHAR(255) NOT NULL COMMENT '博客的标题',
 		`blog_digest` VARCHAR(1024) NOT NULL COMMENT '博客的摘要(150字以内的摘要)',
 		`blog_create_time` TIMESTAMP NOT NULL DEFAULT(CURRENT_TIMESTAMP) COMMENT '博客的创建时间戳',
