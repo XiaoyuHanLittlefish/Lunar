@@ -54,8 +54,30 @@ public class BlogController {
         return blogService.disikeBlog(blogId);
     }
 
-    @DeleteMapping("/{blogId}/like")
+    @DeleteMapping("/{blogId}/dislike")
     public ResponseResult cancelDislikeBlog(@PathVariable("blogId") Integer blogId) {
         return blogService.cancelDislikeBlog(blogId);
+    }
+
+    @GetMapping("/{blogId}/like")
+    public ResponseResult hasLikeBlog(@PathVariable("blogId") Integer blogId) {
+        return blogService.hasLikeBlog(blogId);
+    }
+
+    @GetMapping("/{blogId}/dislike")
+    public ResponseResult hasDislikeBlog(@PathVariable("blogId") Integer blogId) {
+        return blogService.hasDislikeBlog(blogId);
+    }
+
+    @PostMapping("/{blogId}/collect")
+    public ResponseResult collectBlogToFolder(@PathVariable("blogId") Integer blogId,
+                                              Integer folderId) {
+        return blogService.collectBlogToFolder(blogId, folderId);
+    }
+
+    @DeleteMapping("/{blogId}/collect")
+    public ResponseResult cancelCollectBlogToFolder(@PathVariable("blogId") Integer blogId,
+                                                    Integer folderId) {
+        return blogService.cancelCollectBlogToFolder(blogId, folderId);
     }
 }

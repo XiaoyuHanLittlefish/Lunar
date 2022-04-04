@@ -30,4 +30,12 @@ public interface BlogService extends IService<Blog> {
     ResponseResult disikeBlog(Integer blogId);
 
     ResponseResult cancelDislikeBlog(Integer blogId);
+
+    ResponseResult hasLikeBlog(Integer blogId);
+
+    ResponseResult hasDislikeBlog(Integer blogId);
+
+    ResponseResult collectBlogToFolder(Integer blogId, Integer folderId);
+
+    ResponseResult cancelCollectBlogToFolder(Integer blogId, Integer folderId);
 }

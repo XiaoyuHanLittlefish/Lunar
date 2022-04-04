@@ -4,6 +4,7 @@ import com.lunar.domain.ResponseResult;
 import com.lunar.service.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -22,6 +23,11 @@ public class MessageController {
     @GetMapping("/list")
     public ResponseResult getMessageList(Integer userId, Integer toId) {
         return messageService.getMessageList(userId, toId);
+    }
+
+    @PostMapping
+    public ResponseResult sendMessageToUser(Integer toId, String messageContent) {
+        return messageService.sendMessageToUser(toId, messageContent);
     }
 
 }

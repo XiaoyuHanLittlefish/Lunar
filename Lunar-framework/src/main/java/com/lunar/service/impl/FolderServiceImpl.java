@@ -8,6 +8,7 @@ import com.lunar.domain.entity.Folder;
 import com.lunar.domain.entity.FolderCollect;
 import com.lunar.domain.vo.FolderDetailVo;
 import com.lunar.domain.vo.FolderVo;
+import com.lunar.enums.AppHttpCodeEnum;
 import com.lunar.mapper.FolderMapper;
 import com.lunar.service.*;
 import com.lunar.utils.BeanCopyUtils;
@@ -131,5 +132,37 @@ public class FolderServiceImpl extends ServiceImpl<FolderMapper, Folder> impleme
         //存储
         save(folder);
         return ResponseResult.okResult();
+    }
+
+    @Override
+    public ResponseResult collectBlogToFolder(Integer blogId, Integer folderId) {
+        if(isCollected(blogId, folderId)) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.NO_OPERATOR_AUTH.getCode(), "已经收藏过了");
+        }
+        FolderCollect folderCollect = new FolderCollect(folderId, blogId, new Timestamp(System.currentTimeMillis()));
+        folderCollectService.save(folderCollect);
+
+        return ResponseResult.okResult();
+    }
+
+    @Override
+    public ResponseResult cancelCollectBlogToFolder(Integer blogId, Integer folderId) {
+        if(!isCollected(blogId, folderId)) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.NO_OPERATOR_AUTH.getCode(), "还没有收藏过");
+        }
+        LambdaQueryWrapper<FolderCollect> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(FolderCollect::getFolderId, folderId);
+        queryWrapper.eq(FolderCollect::getBlogId, blogId);
+        folderCollectService.remove(queryWrapper);
+        return ResponseResult.okResult();
+    }
+
+    private Boolean isCollected(Integer blogId, Integer folderId) {
+        LambdaQueryWrapper<FolderCollect> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(FolderCollect::getFolderId, folderId);
+        queryWrapper.eq(FolderCollect::getBlogId, blogId);
+
+        FolderCollect folderCollect = folderCollectService.getOne(queryWrapper);
+        return folderCollect != null;
     }
 }

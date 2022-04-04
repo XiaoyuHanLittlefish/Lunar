@@ -16,4 +16,6 @@ public interface MessageService extends IService<Message> {
     ResponseResult getMessageSenderList(Integer userId, Integer pageNumber, Integer pageSize);
 
     ResponseResult getMessageList(Integer userId, Integer toId);
+
+    ResponseResult sendMessageToUser(Integer toId, String messageContent);
 }

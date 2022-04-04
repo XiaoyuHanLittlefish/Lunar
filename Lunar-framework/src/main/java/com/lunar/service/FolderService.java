@@ -24,4 +24,8 @@ public interface FolderService extends IService<Folder> {
     ResponseResult copyFolder(Integer folderId);
 
     ResponseResult createFolder(Folder folder);
+
+    ResponseResult collectBlogToFolder(Integer blogId, Integer folderId);
+
+    ResponseResult cancelCollectBlogToFolder(Integer blogId, Integer folderId);
 }

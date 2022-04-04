@@ -7,7 +7,11 @@ import com.lunar.constants.SystemConstants;
 import com.lunar.domain.ResponseResult;
 import com.lunar.domain.entity.Blog;
 import com.lunar.domain.entity.BlogLike;
+import com.lunar.domain.entity.Folder;
+import com.lunar.domain.entity.FolderCollect;
 import com.lunar.domain.vo.BlogDetailVo;
+import com.lunar.domain.vo.HasDislikeVo;
+import com.lunar.domain.vo.HasLikeVo;
 import com.lunar.domain.vo.HotBlogVo;
 import com.lunar.enums.AppHttpCodeEnum;
 import com.lunar.mapper.BlogMapper;
@@ -42,6 +46,9 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
 
     @Autowired
     private BlogLikeService blogLikeService;
+
+    @Autowired
+    private FolderService folderService;
 
     @Override
     public ResponseResult getBlogDetail(Integer blogId) {
@@ -106,8 +113,14 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
     public ResponseResult deleteBlog(Integer blogId) {
         //获取token中的userId
         Integer userId = UserFillUtils.getUserIdFromToken();
-        // TODO: 判断用户是否是否有权限
-
+        // 判断用户是否是否有权限
+        LambdaQueryWrapper<Blog> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Blog::getBlogId, blogId);
+        queryWrapper.eq(Blog::getBlogAuthorId, userId);
+        Blog blog = getOne(queryWrapper);
+        if(blog == null) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.NO_OPERATOR_AUTH.getCode(), AppHttpCodeEnum.NO_OPERATOR_AUTH.getMsg());
+        }
         removeById(blogId);
 
         return ResponseResult.okResult();
@@ -255,6 +268,78 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
         updateById(blog);
 
         return ResponseResult.okResult();
+    }
+
+    @Override
+    public ResponseResult hasLikeBlog(Integer blogId) {
+        //获取token中的userId
+        Integer userId = UserFillUtils.getUserIdFromToken();
+        HasLikeVo hasLikeVo = new HasLikeVo();
+        //如果没有找到userId 返回false
+        if(userId == null) {
+            hasLikeVo.setHasLike(false);
+        }else {
+            hasLikeVo.setHasLike(isLikeBlog(userId, blogId));
+        }
+
+        return ResponseResult.okResult(hasLikeVo);
+    }
+
+    @Override
+    public ResponseResult hasDislikeBlog(Integer blogId) {
+        //获取token中的userId
+        Integer userId = UserFillUtils.getUserIdFromToken();
+        HasDislikeVo hasDislikeVo = new HasDislikeVo();
+        //如果没有找到userId 返回false
+        if(userId == null) {
+            hasDislikeVo.setHasDislike(false);
+        }else {
+            hasDislikeVo.setHasDislike(isDislikeBlog(userId, blogId));
+        }
+
+        return ResponseResult.okResult(hasDislikeVo);
+    }
+
+    @Override
+    public ResponseResult collectBlogToFolder(Integer blogId, Integer folderId) {
+        //获取token中的userId
+        Integer userId = UserFillUtils.getUserIdFromToken();
+        //如果没有找到userId 返回需要登陆
+        if(userId == null) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.NEED_LOGIN.getCode(), AppHttpCodeEnum.NEED_LOGIN.getMsg());
+        }
+        //查询是否有folderId收藏夹
+        LambdaQueryWrapper<Folder> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Folder::getFolderId, folderId);
+        queryWrapper.eq(Folder::getFolderAuthorId, userId);
+        Folder folder = folderService.getOne(queryWrapper);
+        //如果没有找到，返回未找到收藏夹
+        if(folder == null) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.NO_OPERATOR_AUTH.getCode(), "未找到收藏夹");
+        }
+
+        return folderService.collectBlogToFolder(blogId, folderId);
+    }
+
+    @Override
+    public ResponseResult cancelCollectBlogToFolder(Integer blogId, Integer folderId) {
+        //获取token中的userId
+        Integer userId = UserFillUtils.getUserIdFromToken();
+        //如果没有找到userId 返回需要登陆
+        if(userId == null) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.NEED_LOGIN.getCode(), AppHttpCodeEnum.NEED_LOGIN.getMsg());
+        }
+        //查询是否有folderId收藏夹
+        LambdaQueryWrapper<Folder> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Folder::getFolderId, folderId);
+        queryWrapper.eq(Folder::getFolderAuthorId, userId);
+        Folder folder = folderService.getOne(queryWrapper);
+        //如果没有找到，返回未找到收藏夹
+        if(folder == null) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.NO_OPERATOR_AUTH.getCode(), "未找到收藏夹");
+        }
+
+        return folderService.cancelCollectBlogToFolder(blogId, folderId);
     }
 
     private Boolean isLikeBlog(Integer userId, Integer blogId) {

@@ -7,13 +7,16 @@ import com.lunar.domain.entity.Message;
 import com.lunar.domain.entity.User;
 import com.lunar.domain.vo.MessageVo;
 import com.lunar.domain.vo.SenderVo;
+import com.lunar.enums.AppHttpCodeEnum;
 import com.lunar.mapper.MessageMapper;
 import com.lunar.service.MessageService;
 import com.lunar.service.UserService;
 import com.lunar.utils.BeanCopyUtils;
+import com.lunar.utils.UserFillUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -58,5 +61,24 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
         List<MessageVo> messageVoList = BeanCopyUtils.copyBeanList(messageList, MessageVo.class);
 
         return ResponseResult.okResult(messageVoList);
+    }
+
+    @Override
+    public ResponseResult sendMessageToUser(Integer toId, String messageContent) {
+        //获取token中的userId
+        Integer userId = UserFillUtils.getUserIdFromToken();
+
+        //如果没有找到userId 返回需要登陆
+        if(userId == null) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.NEED_LOGIN.getCode(), AppHttpCodeEnum.NEED_LOGIN.getMsg());
+        }
+        Message message = new Message();
+        message.setMessageSenderId(userId);
+        message.setMessageReceiverId(toId);
+        message.setMessageCreateTime(new Timestamp(System.currentTimeMillis()));
+        message.setMessageContent(messageContent);
+        save(message);
+
+        return ResponseResult.okResult(message);
     }
 }
