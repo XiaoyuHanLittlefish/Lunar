@@ -17,7 +17,7 @@ public interface BlogService extends IService<Blog> {
 
     ResponseResult getHotBlogList();
 
-    ResponseResult addNewBlog(Blog blog);
+    ResponseResult addNewBlog(Blog blog, Integer[] tagIds);
 
     ResponseResult deleteBlog(Integer blogId);
 

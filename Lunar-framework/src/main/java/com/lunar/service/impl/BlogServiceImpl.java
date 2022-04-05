@@ -5,10 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lunar.constants.SystemConstants;
 import com.lunar.domain.ResponseResult;
-import com.lunar.domain.entity.Blog;
-import com.lunar.domain.entity.BlogLike;
-import com.lunar.domain.entity.Folder;
-import com.lunar.domain.entity.FolderCollect;
+import com.lunar.domain.entity.*;
 import com.lunar.domain.vo.BlogDetailVo;
 import com.lunar.domain.vo.HasDislikeVo;
 import com.lunar.domain.vo.HasLikeVo;
@@ -90,7 +87,7 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
     }
 
     @Override
-    public ResponseResult addNewBlog(Blog blog) {
+    public ResponseResult addNewBlog(Blog blog, Integer[] tagIds) {
         //获取token中的userId
         Integer userId = UserFillUtils.getUserIdFromToken();
 
@@ -105,6 +102,14 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
         blog.setBlogAuthorId(userId);
         //保存blog
         save(blog);
+
+        for (Integer tagId : tagIds) {
+            HasTag hasTag = new HasTag();
+            hasTag.setTagId(tagId);
+            hasTag.setBlogId(blog.getBlogId());
+
+            hasTagService.save(hasTag);
+        }
 
         return ResponseResult.okResult();
     }
