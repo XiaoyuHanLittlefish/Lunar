@@ -21,7 +21,6 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.util.List;
-import java.util.Timer;
 
 /**
  * (Blog)表服务实现类
@@ -49,28 +48,33 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
 
     @Override
     public ResponseResult getBlogDetail(Integer blogId) {
-        //TODO 访问后增加1被查看次数
         //根据blogId找到博客
         Blog blog = getById(blogId);
+        //访问后增加1被查看次数 并保存到数据库
+        blog.setBlogVisitNumber(blog.getBlogVisitNumber() + 1);
+        updateById(blog);
         //封装成vo
         BlogDetailVo blogDetailVo = BeanCopyUtils.copyBean(blog, BlogDetailVo.class);
         //根据blogAuthorId查询作者昵称
         blogDetailVo.setBlogAuthorName(userService.getById(blogDetailVo.getBlogAuthorId()).getUserName());
         //根据blogId查询标签列表
-
         blogDetailVo.setBlogTags(BlogFillUtils.getBlogTags(blogId, hasTagService, tagService));
 
         return ResponseResult.okResult(blogDetailVo);
     }
 
     @Override
-    public ResponseResult getHotBlogList() {
+    public ResponseResult getHotBlogList(Integer pageNumber, Integer pageSize) {
         //查询所有公开博客，按浏览量降序排列
         LambdaQueryWrapper<Blog> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(Blog::getBlogForm, SystemConstants.BLOG_FORM_PUBLIC);
         queryWrapper.orderByDesc(Blog::getBlogVisitNumber);
         //分页查询
-        Page<Blog> page = new Page(SystemConstants.HOT_BLOG_PAGE_NUMBER, SystemConstants.HOT_BLOG_PAGE_SIZE);
+        if(pageNumber == null)
+            pageNumber = SystemConstants.HOT_BLOG_PAGE_NUMBER;
+        if(pageSize == null)
+            pageSize = SystemConstants.HOT_BLOG_PAGE_SIZE;
+        Page<Blog> page = new Page(pageNumber, pageSize);
         page(page, queryWrapper);
         //返回List并且封装成vo
         List<Blog> blogList = page.getRecords();
@@ -93,11 +97,9 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
 
         //如果没有找到userId 返回需要登陆
         if(userId == null) {
-            return ResponseResult.errorResult(AppHttpCodeEnum.NEED_LOGIN.getCode(), AppHttpCodeEnum.NEED_LOGIN.getMsg());
+            return ResponseResult.errorResult(AppHttpCodeEnum.NEED_LOGIN);
         }
 
-        // TODO: 检查blogTitle blogContent blogForm blogType非空
-        // TODO: 填充blogDigest blogCreateTime blogVisitNumber blogLikeNumber blogDislikeNumber blogCollectNumber blogShareNumber
         //设置blog的blogAuthorId为userId
         blog.setBlogAuthorId(userId);
         //保存blog
@@ -118,6 +120,9 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
     public ResponseResult deleteBlog(Integer blogId) {
         //获取token中的userId
         Integer userId = UserFillUtils.getUserIdFromToken();
+        if(userId == null) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.NEED_LOGIN);
+        }
         // 判断用户是否是否有权限
         LambdaQueryWrapper<Blog> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(Blog::getBlogId, blogId);

@@ -15,7 +15,7 @@ public interface BlogService extends IService<Blog> {
 
     ResponseResult getBlogDetail(Integer blogId);
 
-    ResponseResult getHotBlogList();
+    ResponseResult getHotBlogList(Integer pageNumber, Integer pageSize);
 
     ResponseResult addNewBlog(Blog blog, Integer[] tagIds);
 

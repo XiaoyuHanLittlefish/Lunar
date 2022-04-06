@@ -19,8 +19,8 @@ public class BlogController {
     }
 
     @GetMapping("/hot")
-    public ResponseResult getHotBlogList() {
-        return blogService.getHotBlogList();
+    public ResponseResult getHotBlogList(Integer pageNumber, Integer pageSize) {
+        return blogService.getHotBlogList(pageNumber, pageSize);
     }
 
     @PostMapping

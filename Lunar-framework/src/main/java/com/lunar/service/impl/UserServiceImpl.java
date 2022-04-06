@@ -153,6 +153,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public ResponseResult updateUserAvatar(Integer userId, MultipartFile file) {
+        //如果userId与Token中的id不同 返回无效操作权限
+        if(!userId.equals(UserFillUtils.getUserIdFromToken())) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.NO_OPERATOR_AUTH);
+        }
+
         FileSaveVo fileSaveVo = FileUtils.saveFile(file);
         if(fileSaveVo.getMessage().equals("未选择文件")) {
             return ResponseResult.errorResult(AppHttpCodeEnum.CONTENT_NOT_NULL);
