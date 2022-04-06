@@ -77,7 +77,7 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagSe
     }
 
     @Override
-    public ResponseResult getTag() {
+    public ResponseResult getTagList() {
         //查询所有标签
         LambdaQueryWrapper<Tag> queryWrapper = new LambdaQueryWrapper<>();
         List<Tag> tagList = list(queryWrapper);

@@ -22,8 +22,8 @@ public class TagController {
     }
 
     @GetMapping
-    public ResponseResult getTag() {
-        return tagService.getTag();
+    public ResponseResult getTagList() {
+        return tagService.getTagList();
     }
 
 }
