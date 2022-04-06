@@ -5,6 +5,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.Timestamp;
 
 public class FileUtils {
 
@@ -14,9 +15,9 @@ public class FileUtils {
             fileSaveVo.setMessage("未选择文件");
             return fileSaveVo;
         }
-        String filename = file.getOriginalFilename(); //获取上传文件原来的名称
+        String filename = new Timestamp(System.currentTimeMillis()).getTime() + file.getOriginalFilename(); //时间戳+获取上传文件原来的名称
         //需要将此处修改为需要的URL
-        String filePath = "D://Anything/UserFiles/";
+        String filePath = "d://uploadFiles/";
         File temp = new File(filePath);
         if (!temp.exists()){
             temp.mkdirs();
@@ -32,7 +33,7 @@ public class FileUtils {
             return fileSaveVo;
         }
 
-        fileSaveVo.setUrl(filePath + filename);
+        fileSaveVo.setUrl("http://localhost:9999/" + filename);
         fileSaveVo.setMessage("上传成功");
         return fileSaveVo;
     }
