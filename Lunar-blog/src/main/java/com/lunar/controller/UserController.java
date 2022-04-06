@@ -5,6 +5,7 @@ import com.lunar.domain.entity.User;
 import com.lunar.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/user")
@@ -49,6 +50,12 @@ public class UserController {
     @PutMapping("/{userId}")
     public ResponseResult updateUser(@PathVariable("userId") Integer userId, @RequestBody User user) {
         return userService.updateUser(userId, user);
+    }
+
+    @PutMapping("/{userId}/avatar")
+    public ResponseResult updateUserAvatar(@PathVariable("userId") Integer userId,
+                                           @RequestParam("file") MultipartFile file) {
+        return userService.updateUserAvatar(userId, file);
     }
 
 }

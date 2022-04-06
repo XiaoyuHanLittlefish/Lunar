@@ -5,4 +5,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface FileService {
     ResponseResult upload(MultipartFile file);
+
+    ResponseResult multipleUpload(MultipartFile[] files);
 }

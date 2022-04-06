@@ -6,16 +6,21 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lunar.domain.ResponseResult;
 import com.lunar.domain.entity.User;
 import com.lunar.domain.entity.UserFollow;
+import com.lunar.domain.vo.FileSaveVo;
 import com.lunar.domain.vo.FollowerVo;
 import com.lunar.domain.vo.UserDetailVo;
 import com.lunar.domain.vo.UserVo;
+import com.lunar.enums.AppHttpCodeEnum;
 import com.lunar.mapper.UserMapper;
+import com.lunar.service.FileService;
 import com.lunar.service.UserFollowService;
 import com.lunar.service.UserService;
 import com.lunar.utils.BeanCopyUtils;
+import com.lunar.utils.FileUtils;
 import com.lunar.utils.UserFillUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -143,6 +148,22 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         updateById(user1);
 
+        return ResponseResult.okResult();
+    }
+
+    @Override
+    public ResponseResult updateUserAvatar(Integer userId, MultipartFile file) {
+        FileSaveVo fileSaveVo = FileUtils.saveFile(file);
+        if(fileSaveVo.getMessage().equals("未选择文件")) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.CONTENT_NOT_NULL);
+        }else if(fileSaveVo.getMessage().equals("上传错误")) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.SYSTEM_ERROR);
+        }else {
+            User user = getById(userId);
+            user.setUserAvatar(fileSaveVo.getUrl());
+
+            updateById(user);
+        }
         return ResponseResult.okResult();
     }
 }

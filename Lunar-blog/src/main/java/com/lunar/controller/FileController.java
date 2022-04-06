@@ -19,4 +19,8 @@ public class FileController {
         return fileService.upload(file);
     }
 
+    @PostMapping("/upload/multiple")
+    public ResponseResult multipleUpload(@RequestParam("file") MultipartFile[] files) {
+        return fileService.multipleUpload(files);
+    }
 }

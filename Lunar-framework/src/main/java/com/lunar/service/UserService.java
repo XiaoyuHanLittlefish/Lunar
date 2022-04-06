@@ -3,6 +3,7 @@ package com.lunar.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.lunar.domain.ResponseResult;
 import com.lunar.domain.entity.User;
+import org.springframework.web.multipart.MultipartFile;
 
 
 /**
@@ -26,4 +27,6 @@ public interface UserService extends IService<User> {
     ResponseResult getFanList(Integer userId, Integer pageNumber, Integer pageSize);
 
     ResponseResult updateUser(Integer userId, User user);
+
+    ResponseResult updateUserAvatar(Integer userId, MultipartFile file);
 }
