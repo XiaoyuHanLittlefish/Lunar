@@ -52,7 +52,7 @@ public class BlogController {
 
     @PostMapping("/{blogId}/dislike")
     public ResponseResult dislikeBlog(@PathVariable("blogId") Integer blogId) {
-        return blogService.disikeBlog(blogId);
+        return blogService.dislikeBlog(blogId);
     }
 
     @DeleteMapping("/{blogId}/dislike")

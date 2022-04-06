@@ -217,7 +217,7 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
     }
 
     @Override
-    public ResponseResult disikeBlog(Integer blogId) {
+    public ResponseResult dislikeBlog(Integer blogId) {
         //获取token中的userId
         Integer userId = UserFillUtils.getUserIdFromToken();
 

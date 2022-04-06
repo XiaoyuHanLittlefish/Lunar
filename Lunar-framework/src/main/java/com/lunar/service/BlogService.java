@@ -27,7 +27,7 @@ public interface BlogService extends IService<Blog> {
 
     ResponseResult cancelLikeBlog(Integer blogId);
 
-    ResponseResult disikeBlog(Integer blogId);
+    ResponseResult dislikeBlog(Integer blogId);
 
     ResponseResult cancelDislikeBlog(Integer blogId);
 
