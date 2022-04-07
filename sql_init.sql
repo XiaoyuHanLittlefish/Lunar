@@ -8,14 +8,14 @@ CREATE TABLE if NOT EXISTS `user`(
 		`user_account` VARCHAR(12) NOT NULL UNIQUE COMMENT '用户手机号',
 		`user_password` VARCHAR(255) NOT NULL COMMENT '用户账号密码',
 		`user_name` VARCHAR(40) NOT NULL COMMENT '用户昵称',
-        `user_avatar` VARCHAR(255) NOT NULL COMMENT '用户头像路径',
-        `user_gender` VARCHAR(10) NOT NULL COMMENT '用户性别',
+    `user_avatar` VARCHAR(255) COMMENT '用户头像路径',
+    `user_gender` VARCHAR(10) COMMENT '用户性别',
 		`user_birthday`  TIMESTAMP COMMENT '用户出生时间',
 		`user_signature` VARCHAR(255) COMMENT '用户个性签名', 
 		`user_follow_number` INT NOT NULL DEFAULT(0) COMMENT '用户关注的人数',
 		`user_fans_number` INT NOT NULL DEFAULT(0) COMMENT '用户的粉丝数(关注该用户的人数)',
 		`user_article_number` INT NOT NULL DEFAULT(0) COMMENT '用户的文章数',
-		`user_limit` INT(1) DEFAULT(1)COMMENT '用户类别(权限) 0 - 管理员/1 - 普通注册用户 /2 - 游客',
+		`user_limit` INT(1) DEFAULT(1)COMMENT '用户类别(权限) 0 - 管理员/1 - 普通注册用户',
 		`user_profile` VARCHAR(1024) COMMENT '用户简介',
 		`user_area` VARCHAR(1024) COMMENT '用户所在地址',
 		CONSTRAINT `PK_USER` PRIMARY KEY(`user_id`)
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS `blog`(
 		`blog_dislike_number` INT NOT NULL DEFAULT(0) COMMENT '博客被点踩👎的次数',
 		`blog_collect_number` INT NOT NULL DEFAULT(0) COMMENT '博客被收藏的次数',
 		`blog_share_number` INT NOT NULL DEFAULT(0) COMMENT '博客被分享的次数',
-		`blog_form`	INT(1) NOT NULL DEFAULT(0) COMMENT '博客的可见性:0 - 公开/1 - 粉丝可见/2 - 私有',
+		`blog_form`	INT(1) NOT NULL DEFAULT(0) COMMENT '博客的可见性:0 - 公开/2 - 私有',
 		`blog_type`	INT(1) NOT NULL DEFAULT(0) COMMENT '博客的类型:0 - 原创/1 - 转载',
 		CONSTRAINT `PK_BLOG` PRIMARY KEY(`blog_id`),
 		CONSTRAINT `FK_BLOG_USER` FOREIGN KEY(`blog_author_id`) REFERENCES `user`(`user_id`)
@@ -119,8 +119,8 @@ CREATE TABLE IF NOT EXISTS `folder_collect`(
 CREATE TABLE IF NOT EXISTS `blog_like`(
 		`user_id` INT(6) ZEROFILL NOT NULL COMMENT '用户id(外键)',
 		`blog_id` INT(6) ZEROFILL NOT NULL COMMENT '博客id(外键) /两个属性联合做主键',
-        `like_type` INT(1) NOT NULL DEFAULT(1) COMMENT '点赞类型 0 - 点踩/1 - 点赞',
-        `blog_like_time` TIMESTAMP NOT NULL DEFAULT(CURRENT_TIMESTAMP) COMMENT '点赞博客的时间戳',
+    `like_type` INT(1) NOT NULL DEFAULT(1) COMMENT '点赞类型 0 - 点踩/1 - 点赞',
+    `blog_like_time` TIMESTAMP NOT NULL DEFAULT(CURRENT_TIMESTAMP) COMMENT '点赞博客的时间戳',
 		CONSTRAINT `PK_BLOG_LIKE` PRIMARY KEY(`user_id`,`blog_id`),
 		CONSTRAINT `FK_BLOG_LIKE_USER` FOREIGN KEY(`user_id`) REFERENCES `user`(`user_id`),
 		CONSTRAINT `FK_BLOG_LIKE_BLOG` FOREIGN KEY(`blog_id`) REFERENCES `blog`(`blog_id`)
@@ -130,21 +130,9 @@ CREATE TABLE IF NOT EXISTS `blog_like`(
 CREATE TABLE IF NOT EXISTS `comment_like`(
 		`user_id` INT(6) ZEROFILL NOT NULL COMMENT '用户id(外键)',
 		`comment_id` INT(6) ZEROFILL NOT NULL COMMENT '评论id(外键) /两个属性联合做主键',
-        `like_type` INT(1) NOT NULL DEFAULT(1) COMMENT '点赞类型 0 - 点踩/1 - 点赞',
-        `comment_like_time` TIMESTAMP NOT NULL DEFAULT(CURRENT_TIMESTAMP) COMMENT '点赞评论的时间戳',
+    `like_type` INT(1) NOT NULL DEFAULT(1) COMMENT '点赞类型 0 - 点踩/1 - 点赞',
+    `comment_like_time` TIMESTAMP NOT NULL DEFAULT(CURRENT_TIMESTAMP) COMMENT '点赞评论的时间戳',
 		CONSTRAINT `PK_COMMENT_LIKE` PRIMARY KEY(`user_id`,`comment_id`),
 		CONSTRAINT `FK_COMMENT_LIKE_USER` FOREIGN KEY(`user_id`) REFERENCES `user`(`user_id`),
 		CONSTRAINT `FK_COMMENT_LIKE_COMMENT` FOREIGN KEY(`comment_id`) REFERENCES `comment`(`comment_id`)
 );
-
-
-
-
-
-
-
-
-
-
-
-

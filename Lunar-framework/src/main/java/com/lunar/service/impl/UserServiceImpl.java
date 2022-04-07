@@ -147,6 +147,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             user1.setUserArea(user.getUserArea());
         }
 
+        if (user.getUserGender() != null) {
+            user1.setUserGender(user.getUserGender());
+        }
+
         updateById(user1);
 
         return ResponseResult.okResult();
