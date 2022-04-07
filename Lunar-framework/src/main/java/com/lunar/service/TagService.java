@@ -16,4 +16,6 @@ public interface TagService extends IService<Tag> {
     ResponseResult getBlogHasTag(Integer tagId, Integer pageNumber);
 
     ResponseResult getTagList();
+
+    ResponseResult addNewTag(String tagContent);
 }

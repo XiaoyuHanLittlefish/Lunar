@@ -9,6 +9,7 @@ import com.lunar.domain.entity.Blog;
 import com.lunar.domain.entity.HasTag;
 import com.lunar.domain.entity.Tag;
 import com.lunar.domain.vo.TagBlogVo;
+import com.lunar.enums.AppHttpCodeEnum;
 import com.lunar.mapper.TagMapper;
 import com.lunar.service.BlogService;
 import com.lunar.service.HasTagService;
@@ -16,6 +17,7 @@ import com.lunar.service.TagService;
 import com.lunar.service.UserService;
 import com.lunar.utils.BeanCopyUtils;
 import com.lunar.utils.BlogFillUtils;
+import com.lunar.utils.UserFillUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -83,6 +85,19 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagSe
         List<Tag> tagList = list(queryWrapper);
 
         return ResponseResult.okResult(tagList);
+    }
+
+    @Override
+    public ResponseResult addNewTag(String tagContent) {
+        Integer userId = UserFillUtils.getUserIdFromToken();
+
+        if(userId == null) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.NEED_LOGIN);
+        }
+
+        Tag tag = new Tag();
+        save(tag);
+        return ResponseResult.okResult();
     }
 
 }

@@ -106,6 +106,13 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
         save(blog);
 
         for (Integer tagId : tagIds) {
+            if (tagId == null) {
+                break;
+            }
+            Tag tag = tagService.getById(tagId);
+            if(tag == null) {
+                continue;
+            }
             HasTag hasTag = new HasTag();
             hasTag.setTagId(tagId);
             hasTag.setBlogId(blog.getBlogId());

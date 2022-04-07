@@ -29,4 +29,6 @@ public interface UserService extends IService<User> {
     ResponseResult updateUser(Integer userId, User user);
 
     ResponseResult updateUserAvatar(Integer userId, MultipartFile file);
+
+    ResponseResult hasFollowUser(Integer userId);
 }

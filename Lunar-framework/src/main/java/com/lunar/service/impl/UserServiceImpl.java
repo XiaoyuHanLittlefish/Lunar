@@ -6,10 +6,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lunar.domain.ResponseResult;
 import com.lunar.domain.entity.User;
 import com.lunar.domain.entity.UserFollow;
-import com.lunar.domain.vo.FileSaveVo;
-import com.lunar.domain.vo.FollowerVo;
-import com.lunar.domain.vo.UserDetailVo;
-import com.lunar.domain.vo.UserVo;
+import com.lunar.domain.vo.*;
 import com.lunar.enums.AppHttpCodeEnum;
 import com.lunar.mapper.UserMapper;
 import com.lunar.service.FileService;
@@ -123,7 +120,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public ResponseResult updateUser(Integer userId, User user) {
-        // TODO 检查是否有权限
+        //如果userId与Token中的id不同 返回无效操作权限
+        if(!userId.equals(UserFillUtils.getUserIdFromToken())) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.NO_OPERATOR_AUTH);
+        }
+
         User user1 = getById(userId);
 
         if (user.getUserName() != null) {
@@ -170,5 +171,24 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             updateById(user);
         }
         return ResponseResult.okResult();
+    }
+
+    @Override
+    public ResponseResult hasFollowUser(Integer userId) {
+        Integer userIdFromToken = UserFillUtils.getUserIdFromToken();
+
+        if(userId == null) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.NEED_LOGIN);
+        }
+
+        HasFollowVo hasFollowVo = new HasFollowVo();
+
+        LambdaQueryWrapper<UserFollow> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(UserFollow::getAuthorId, userIdFromToken);
+        queryWrapper.eq(UserFollow::getToId, userId);
+        UserFollow userFollow = userFollowService.getOne(queryWrapper);
+        hasFollowVo.setHasFollow(userFollow == null);
+
+        return ResponseResult.okResult(hasFollowVo);
     }
 }

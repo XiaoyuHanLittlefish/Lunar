@@ -58,4 +58,9 @@ public class UserController {
         return userService.updateUserAvatar(userId, file);
     }
 
+    @GetMapping("/{userId}/follow")
+    public ResponseResult hasFollowUser(@PathVariable("userId") Integer userId) {
+        return userService.hasFollowUser(userId);
+    }
+
 }
