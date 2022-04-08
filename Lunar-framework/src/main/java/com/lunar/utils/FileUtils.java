@@ -16,11 +16,12 @@ public class FileUtils {
             fileSaveVo.setMessage("未选择文件");
             return fileSaveVo;
         }
+        //随机文件后缀名
         long randomFileName = (long) (Math.random() * 1000000);
         String originalFilename = file.getOriginalFilename();
         int pos = originalFilename.indexOf('.');
         String fileType = originalFilename.substring(pos);
-        //时间戳+随机名称+原本的类型
+        //时间戳+“+”+随机文件后缀名+文件的文件类型
         String filename = new Timestamp(System.currentTimeMillis()).getTime() + "+" + randomFileName + fileType;
         //需要将此处修改为需要的URL
         String filePath = "d://uploadFiles/";
