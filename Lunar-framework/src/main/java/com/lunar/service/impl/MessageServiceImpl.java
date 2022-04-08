@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -69,7 +70,7 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
         Integer userId = UserFillUtils.getUserIdFromToken();
 
         //如果没有找到userId 返回需要登陆
-        if(userId == null) {
+        if(Objects.isNull(userId)) {
             return ResponseResult.errorResult(AppHttpCodeEnum.NEED_LOGIN.getCode(), AppHttpCodeEnum.NEED_LOGIN.getMsg());
         }
         Message message = new Message();

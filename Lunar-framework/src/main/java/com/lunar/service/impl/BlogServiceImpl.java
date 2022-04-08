@@ -6,10 +6,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lunar.constants.SystemConstants;
 import com.lunar.domain.ResponseResult;
 import com.lunar.domain.entity.*;
-import com.lunar.domain.vo.BlogDetailVo;
-import com.lunar.domain.vo.HasDislikeVo;
-import com.lunar.domain.vo.HasLikeVo;
-import com.lunar.domain.vo.HotBlogVo;
+import com.lunar.domain.vo.*;
 import com.lunar.enums.AppHttpCodeEnum;
 import com.lunar.mapper.BlogMapper;
 import com.lunar.service.*;
@@ -21,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * (Blog)表服务实现类
@@ -70,9 +68,9 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
         queryWrapper.eq(Blog::getBlogForm, SystemConstants.BLOG_FORM_PUBLIC);
         queryWrapper.orderByDesc(Blog::getBlogVisitNumber);
         //分页查询
-        if(pageNumber == null)
+        if(Objects.isNull(pageNumber))
             pageNumber = SystemConstants.HOT_BLOG_PAGE_NUMBER;
-        if(pageSize == null)
+        if(Objects.isNull(pageSize))
             pageSize = SystemConstants.HOT_BLOG_PAGE_SIZE;
         Page<Blog> page = new Page(pageNumber, pageSize);
         page(page, queryWrapper);
@@ -87,16 +85,18 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
             hotBlogVo.setBlogTags(BlogFillUtils.getBlogTags(hotBlogVo.getBlogId(), hasTagService, tagService));
         }
 
-        return ResponseResult.okResult(hotBlogVoList);
+        //转换成PageVo
+        PageVo pageVo = new PageVo(hotBlogVoList, page.getTotal());
+        return ResponseResult.okResult(pageVo);
     }
 
     @Override
-    public ResponseResult addNewBlog(Blog blog, Integer[] tagIds) {
+    public ResponseResult addNewBlog(Blog blog, String[] tags) {
         //获取token中的userId
         Integer userId = UserFillUtils.getUserIdFromToken();
 
         //如果没有找到userId 返回需要登陆
-        if(userId == null) {
+        if(Objects.isNull(userId)) {
             return ResponseResult.errorResult(AppHttpCodeEnum.NEED_LOGIN);
         }
 
@@ -105,19 +105,22 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
         //保存blog
         save(blog);
 
-        for (Integer tagId : tagIds) {
-            if (tagId == null) {
-                break;
-            }
-            Tag tag = tagService.getById(tagId);
-            if(tag == null) {
-                continue;
-            }
-            HasTag hasTag = new HasTag();
-            hasTag.setTagId(tagId);
-            hasTag.setBlogId(blog.getBlogId());
+        //为已经存在的tag增加与该博客的关系，创建不存在的tag
+        for (String tagContent : tags) {
+            LambdaQueryWrapper<Tag> queryWrapper = new LambdaQueryWrapper();
+            queryWrapper.eq(Tag::getTagContent, tagContent);
 
-            hasTagService.save(hasTag);
+            Tag tag = tagService.getOne(queryWrapper);
+
+            HasTag hasTag = new HasTag();
+            hasTag.setBlogId(blog.getBlogId());
+            if (Objects.isNull(tag)) {
+                tag = new Tag();
+                tag.setTagContent(tagContent);
+                tagService.save(tag);
+            }
+
+            hasTag.setTagId(tag.getTagId());
         }
 
         return ResponseResult.okResult();
@@ -127,7 +130,7 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
     public ResponseResult deleteBlog(Integer blogId) {
         //获取token中的userId
         Integer userId = UserFillUtils.getUserIdFromToken();
-        if(userId == null) {
+        if(Objects.isNull(userId)) {
             return ResponseResult.errorResult(AppHttpCodeEnum.NEED_LOGIN);
         }
         // 判断用户是否是否有权限
@@ -135,7 +138,7 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
         queryWrapper.eq(Blog::getBlogId, blogId);
         queryWrapper.eq(Blog::getBlogAuthorId, userId);
         Blog blog = getOne(queryWrapper);
-        if(blog == null) {
+        if(Objects.isNull(blog)) {
             return ResponseResult.errorResult(AppHttpCodeEnum.NO_OPERATOR_AUTH.getCode(), AppHttpCodeEnum.NO_OPERATOR_AUTH.getMsg());
         }
         removeById(blogId);
@@ -150,7 +153,7 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
         Integer userId = UserFillUtils.getUserIdFromToken();
 
         //如果没有找到userId 返回需要登陆
-        if(userId == null) {
+        if(Objects.isNull(userId)) {
             return ResponseResult.errorResult(AppHttpCodeEnum.NEED_LOGIN.getCode(), AppHttpCodeEnum.NEED_LOGIN.getMsg());
         }
 
@@ -165,13 +168,13 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
         Integer userId = UserFillUtils.getUserIdFromToken();
 
         //如果没有找到userId 返回需要登陆
-        if(userId == null) {
+        if(Objects.isNull(userId)) {
             return ResponseResult.errorResult(AppHttpCodeEnum.NEED_LOGIN.getCode(), AppHttpCodeEnum.NEED_LOGIN.getMsg());
         }
 
         //判断博客是否存在
         Blog blog = getById(blogId);
-        if(blog == null) {
+        if(Objects.isNull(blog)) {
             return ResponseResult.errorResult(AppHttpCodeEnum.SYSTEM_ERROR.getCode(), "博客未找到");
         }
 
@@ -196,13 +199,13 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
         Integer userId = UserFillUtils.getUserIdFromToken();
 
         //如果没有找到userId 返回需要登陆
-        if(userId == null) {
+        if(Objects.isNull(userId)) {
             return ResponseResult.errorResult(AppHttpCodeEnum.NEED_LOGIN.getCode(), AppHttpCodeEnum.NEED_LOGIN.getMsg());
         }
 
         //判断博客是否存在
         Blog blog = getById(blogId);
-        if(blog == null) {
+        if(Objects.isNull(blog)) {
             return ResponseResult.errorResult(AppHttpCodeEnum.SYSTEM_ERROR.getCode(), "博客未找到");
         }
 
@@ -229,13 +232,13 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
         Integer userId = UserFillUtils.getUserIdFromToken();
 
         //如果没有找到userId 返回需要登陆
-        if(userId == null) {
+        if(Objects.isNull(userId)) {
             return ResponseResult.errorResult(AppHttpCodeEnum.NEED_LOGIN.getCode(), AppHttpCodeEnum.NEED_LOGIN.getMsg());
         }
 
         //判断博客是否存在
         Blog blog = getById(blogId);
-        if(blog == null) {
+        if(Objects.isNull(blog)) {
             return ResponseResult.errorResult(AppHttpCodeEnum.SYSTEM_ERROR.getCode(), "博客未找到");
         }
 
@@ -260,13 +263,13 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
         Integer userId = UserFillUtils.getUserIdFromToken();
 
         //如果没有找到userId 返回需要登陆
-        if(userId == null) {
+        if(Objects.isNull(userId)) {
             return ResponseResult.errorResult(AppHttpCodeEnum.NEED_LOGIN.getCode(), AppHttpCodeEnum.NEED_LOGIN.getMsg());
         }
 
         //判断博客是否存在
         Blog blog = getById(blogId);
-        if(blog == null) {
+        if(Objects.isNull(blog)) {
             return ResponseResult.errorResult(AppHttpCodeEnum.SYSTEM_ERROR.getCode(), "博客未找到");
         }
 
@@ -293,7 +296,7 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
         Integer userId = UserFillUtils.getUserIdFromToken();
         HasLikeVo hasLikeVo = new HasLikeVo();
         //如果没有找到userId 返回false
-        if(userId == null) {
+        if(Objects.isNull(userId)) {
             hasLikeVo.setHasLike(false);
         }else {
             hasLikeVo.setHasLike(isLikeBlog(userId, blogId));
@@ -308,7 +311,7 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
         Integer userId = UserFillUtils.getUserIdFromToken();
         HasDislikeVo hasDislikeVo = new HasDislikeVo();
         //如果没有找到userId 返回false
-        if(userId == null) {
+        if(Objects.isNull(userId)) {
             hasDislikeVo.setHasDislike(false);
         }else {
             hasDislikeVo.setHasDislike(isDislikeBlog(userId, blogId));
@@ -322,7 +325,7 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
         //获取token中的userId
         Integer userId = UserFillUtils.getUserIdFromToken();
         //如果没有找到userId 返回需要登陆
-        if(userId == null) {
+        if(Objects.isNull(userId)) {
             return ResponseResult.errorResult(AppHttpCodeEnum.NEED_LOGIN.getCode(), AppHttpCodeEnum.NEED_LOGIN.getMsg());
         }
         //查询是否有folderId收藏夹
@@ -331,7 +334,7 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
         queryWrapper.eq(Folder::getFolderAuthorId, userId);
         Folder folder = folderService.getOne(queryWrapper);
         //如果没有找到，返回未找到收藏夹
-        if(folder == null) {
+        if(Objects.isNull(folder)) {
             return ResponseResult.errorResult(AppHttpCodeEnum.NO_OPERATOR_AUTH.getCode(), "未找到收藏夹");
         }
 
@@ -343,7 +346,7 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
         //获取token中的userId
         Integer userId = UserFillUtils.getUserIdFromToken();
         //如果没有找到userId 返回需要登陆
-        if(userId == null) {
+        if(Objects.isNull(userId)) {
             return ResponseResult.errorResult(AppHttpCodeEnum.NEED_LOGIN.getCode(), AppHttpCodeEnum.NEED_LOGIN.getMsg());
         }
         //查询是否有folderId收藏夹
@@ -352,7 +355,7 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
         queryWrapper.eq(Folder::getFolderAuthorId, userId);
         Folder folder = folderService.getOne(queryWrapper);
         //如果没有找到，返回未找到收藏夹
-        if(folder == null) {
+        if(Objects.isNull(folder)) {
             return ResponseResult.errorResult(AppHttpCodeEnum.NO_OPERATOR_AUTH.getCode(), "未找到收藏夹");
         }
 

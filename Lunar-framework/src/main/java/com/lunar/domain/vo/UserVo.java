@@ -21,4 +21,6 @@ public class UserVo {
     private Integer userFansNumber;
     //用户个性签名
     private String userSignature;
+    //用户权限
+    private Integer userLimit;
 }

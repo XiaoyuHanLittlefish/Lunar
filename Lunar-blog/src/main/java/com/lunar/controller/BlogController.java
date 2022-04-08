@@ -25,8 +25,8 @@ public class BlogController {
 
     @PostMapping
     public ResponseResult addNewBlog(@RequestBody Blog blog,
-                                     Integer[] tagIds) {
-        return blogService.addNewBlog(blog, tagIds);
+                                     String[] tags) {
+        return blogService.addNewBlog(blog, tags);
     }
 
     @PutMapping("/{blogId}")

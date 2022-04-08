@@ -8,6 +8,7 @@ import com.lunar.domain.ResponseResult;
 import com.lunar.domain.entity.Blog;
 import com.lunar.domain.entity.HasTag;
 import com.lunar.domain.entity.Tag;
+import com.lunar.domain.vo.PageVo;
 import com.lunar.domain.vo.TagBlogVo;
 import com.lunar.enums.AppHttpCodeEnum;
 import com.lunar.mapper.TagMapper;
@@ -41,9 +42,6 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagSe
     private HasTagService hasTagService;
 
     @Autowired
-    private TagService tagService;
-
-    @Autowired
     private UserService userService;
 
     @Override
@@ -72,10 +70,12 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagSe
             //根据blogAuthorId查询作者昵称
             tagBlogVo.setBlogAuthorName(userService.getById(tagBlogVo.getBlogAuthorId()).getUserName());
             //根据blogId查询标签列表
-            tagBlogVo.setBlogTags(BlogFillUtils.getBlogTags(tagBlogVo.getBlogId(), hasTagService, tagService));
+            tagBlogVo.setBlogTags(BlogFillUtils.getBlogTags(tagBlogVo.getBlogId(), hasTagService, this));
         }
 
-        return ResponseResult.okResult(tagBlogVoList);
+        PageVo pageVo = new PageVo(tagBlogVoList, page.getTotal());
+
+        return ResponseResult.okResult(pageVo);
     }
 
     @Override
@@ -91,7 +91,7 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagSe
     public ResponseResult addNewTag(String tagContent) {
         Integer userId = UserFillUtils.getUserIdFromToken();
 
-        if(userId == null) {
+        if(Objects.isNull(userId)) {
             return ResponseResult.errorResult(AppHttpCodeEnum.NEED_LOGIN);
         }
 

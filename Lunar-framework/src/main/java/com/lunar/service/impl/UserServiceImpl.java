@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -97,7 +98,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 .map(User -> BeanCopyUtils.copyBean(User, FollowerVo.class))
                 .collect(Collectors.toList());
 
-        return ResponseResult.okResult(followerVoList);
+        PageVo pageVo = new PageVo(followerVoList, page.getTotal());
+        return ResponseResult.okResult(pageVo);
     }
 
     @Override
@@ -115,7 +117,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 .map(User -> BeanCopyUtils.copyBean(User, FollowerVo.class))
                 .collect(Collectors.toList());
 
-        return ResponseResult.okResult(fanList);
+        PageVo pageVo = new PageVo(fanList, page.getTotal());
+        return ResponseResult.okResult(pageVo);
     }
 
     @Override
@@ -127,28 +130,32 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         User user1 = getById(userId);
 
-        if (user.getUserName() != null) {
+        if (!Objects.isNull(user.getUserName())) {
             user1.setUserName(user.getUserName());
         }
 
-        if (user.getUserBirthday() != null) {
+        if (!Objects.isNull(user.getUserBirthday())) {
             user1.setUserBirthday(user.getUserBirthday());
         }
 
-        if (user.getUserSignature() != null) {
+        if (!Objects.isNull(user.getUserSignature())) {
             user1.setUserSignature(user.getUserSignature());
         }
 
-        if (user.getUserProfile() != null) {
+        if (!Objects.isNull(user.getUserProfile())) {
             user1.setUserProfile(user.getUserProfile());
         }
 
-        if (user.getUserArea() != null) {
+        if (!Objects.isNull(user.getUserArea())) {
             user1.setUserArea(user.getUserArea());
         }
 
-        if (user.getUserGender() != null) {
+        if (!Objects.isNull(user.getUserGender())) {
             user1.setUserGender(user.getUserGender());
+        }
+
+        if(!Objects.isNull(user.getUserAvatar())) {
+            user1.setUserAvatar(user.getUserAvatar());
         }
 
         updateById(user1);
@@ -181,7 +188,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public ResponseResult hasFollowUser(Integer userId) {
         Integer userIdFromToken = UserFillUtils.getUserIdFromToken();
 
-        if(userId == null) {
+        if(Objects.isNull(userId)) {
             return ResponseResult.errorResult(AppHttpCodeEnum.NEED_LOGIN);
         }
 
@@ -191,7 +198,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         queryWrapper.eq(UserFollow::getAuthorId, userIdFromToken);
         queryWrapper.eq(UserFollow::getToId, userId);
         UserFollow userFollow = userFollowService.getOne(queryWrapper);
-        hasFollowVo.setHasFollow(userFollow == null);
+        hasFollowVo.setHasFollow(Objects.isNull(userFollow));
 
         return ResponseResult.okResult(hasFollowVo);
     }

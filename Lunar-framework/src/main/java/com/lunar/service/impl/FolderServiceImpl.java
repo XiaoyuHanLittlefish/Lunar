@@ -8,6 +8,7 @@ import com.lunar.domain.entity.Folder;
 import com.lunar.domain.entity.FolderCollect;
 import com.lunar.domain.vo.FolderDetailVo;
 import com.lunar.domain.vo.FolderVo;
+import com.lunar.domain.vo.PageVo;
 import com.lunar.enums.AppHttpCodeEnum;
 import com.lunar.mapper.FolderMapper;
 import com.lunar.service.*;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * (Folder)表服务实现类
@@ -57,6 +59,7 @@ public class FolderServiceImpl extends ServiceImpl<FolderMapper, Folder> impleme
 
         FolderFillUtils.fillFolderVoList(folderVoList, userService, folderCollectService);
 
+        PageVo pageVo = new PageVo(folderVoList, page.getTotal());
         return ResponseResult.okResult(folderVoList);
     }
 
@@ -163,6 +166,6 @@ public class FolderServiceImpl extends ServiceImpl<FolderMapper, Folder> impleme
         queryWrapper.eq(FolderCollect::getBlogId, blogId);
 
         FolderCollect folderCollect = folderCollectService.getOne(queryWrapper);
-        return folderCollect != null;
+        return !Objects.isNull(folderCollect);
     }
 }
