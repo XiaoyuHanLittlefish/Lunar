@@ -91,7 +91,7 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
     }
 
     @Override
-    public ResponseResult addNewBlog(Blog blog, String[] tags) {
+    public ResponseResult addNewBlog(NewBlogVo blog) {
         //获取token中的userId
         Integer userId = UserFillUtils.getUserIdFromToken();
 
@@ -100,13 +100,16 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
             return ResponseResult.errorResult(AppHttpCodeEnum.NEED_LOGIN);
         }
 
+        Blog newBlog = BeanCopyUtils.copyBean(blog, Blog.class);
         //设置blog的blogAuthorId为userId
-        blog.setBlogAuthorId(userId);
+        newBlog.setBlogAuthorId(userId);
         //保存blog
-        save(blog);
+        save(newBlog);
 
         //为已经存在的tag增加与该博客的关系，创建不存在的tag
-        for (String tagContent : tags) {
+        for (String tagContent : blog.getTags()) {
+            if(Objects.isNull(tagContent))
+                break;
             LambdaQueryWrapper<Tag> queryWrapper = new LambdaQueryWrapper();
             queryWrapper.eq(Tag::getTagContent, tagContent);
 

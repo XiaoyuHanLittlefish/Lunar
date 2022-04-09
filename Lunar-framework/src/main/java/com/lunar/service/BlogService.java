@@ -3,6 +3,7 @@ package com.lunar.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.lunar.domain.ResponseResult;
 import com.lunar.domain.entity.Blog;
+import com.lunar.domain.vo.NewBlogVo;
 
 
 /**
@@ -17,7 +18,7 @@ public interface BlogService extends IService<Blog> {
 
     ResponseResult getHotBlogList(Integer pageNumber, Integer pageSize);
 
-    ResponseResult addNewBlog(Blog blog, String[] tags);
+    ResponseResult addNewBlog(NewBlogVo blog);
 
     ResponseResult deleteBlog(Integer blogId);
 

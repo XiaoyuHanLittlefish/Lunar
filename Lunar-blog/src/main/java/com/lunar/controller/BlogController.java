@@ -2,6 +2,7 @@ package com.lunar.controller;
 
 import com.lunar.domain.ResponseResult;
 import com.lunar.domain.entity.Blog;
+import com.lunar.domain.vo.NewBlogVo;
 import com.lunar.service.BlogService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -24,9 +25,8 @@ public class BlogController {
     }
 
     @PostMapping
-    public ResponseResult addNewBlog(@RequestBody Blog blog,
-                                     String[] tags) {
-        return blogService.addNewBlog(blog, tags);
+    public ResponseResult addNewBlog(@RequestBody NewBlogVo blog) {
+        return blogService.addNewBlog(blog);
     }
 
     @PutMapping("/{blogId}")
