@@ -63,4 +63,11 @@ public class UserController {
         return userService.hasFollowUser(userId);
     }
 
+    @GetMapping("/{userId}/blog/list")
+    public ResponseResult getBlogListOfUser(@PathVariable("userId") Integer userId,
+                                            Integer pageNumber,
+                                            Integer pageSize) {
+        return userService.getBlogListOfUser(userId, pageNumber, pageSize);
+    }
+
 }

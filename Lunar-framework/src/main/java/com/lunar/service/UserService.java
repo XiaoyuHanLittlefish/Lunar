@@ -31,4 +31,6 @@ public interface UserService extends IService<User> {
     ResponseResult updateUserAvatar(Integer userId, MultipartFile file);
 
     ResponseResult hasFollowUser(Integer userId);
+
+    ResponseResult getBlogListOfUser(Integer userId, Integer pageNumber, Integer pageSize);
 }

@@ -4,12 +4,13 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lunar.domain.ResponseResult;
+import com.lunar.domain.entity.Blog;
 import com.lunar.domain.entity.User;
 import com.lunar.domain.entity.UserFollow;
 import com.lunar.domain.vo.*;
 import com.lunar.enums.AppHttpCodeEnum;
 import com.lunar.mapper.UserMapper;
-import com.lunar.service.FileService;
+import com.lunar.service.BlogService;
 import com.lunar.service.UserFollowService;
 import com.lunar.service.UserService;
 import com.lunar.utils.BeanCopyUtils;
@@ -34,6 +35,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Autowired
     private UserFollowService userFollowService;
+
+    @Autowired
+    private BlogService blogService;
 
     @Override
     public ResponseResult getUser(Integer userId) {
@@ -201,5 +205,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         hasFollowVo.setHasFollow(Objects.isNull(userFollow));
 
         return ResponseResult.okResult(hasFollowVo);
+    }
+
+    @Override
+    public ResponseResult getBlogListOfUser(Integer userId, Integer pageNumber, Integer pageSize) {
+        LambdaQueryWrapper<Blog> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Blog::getBlogAuthorId, userId);
+        Page<Blog> page = new Page<>(pageNumber, pageSize);
+        blogService.page(page, queryWrapper);
+
+        List<HotBlogVo> blogVoList = page.getRecords().stream()
+                .map(Blog -> BeanCopyUtils.copyBean(Blog, HotBlogVo.class))
+                .collect(Collectors.toList());
+
+        PageVo pageVo = new PageVo(blogVoList, page.getTotal());
+        return ResponseResult.okResult(pageVo);
     }
 }

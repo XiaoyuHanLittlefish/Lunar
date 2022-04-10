@@ -117,6 +117,7 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
 
             HasTag hasTag = new HasTag();
             hasTag.setBlogId(blog.getBlogId());
+
             if (Objects.isNull(tag)) {
                 tag = new Tag();
                 tag.setTagContent(tagContent);
@@ -124,6 +125,7 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
             }
 
             hasTag.setTagId(tag.getTagId());
+            hasTagService.save(hasTag);
         }
 
         return ResponseResult.okResult();
