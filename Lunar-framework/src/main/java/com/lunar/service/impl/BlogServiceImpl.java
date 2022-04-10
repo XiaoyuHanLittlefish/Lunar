@@ -116,7 +116,7 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
             Tag tag = tagService.getOne(queryWrapper);
 
             HasTag hasTag = new HasTag();
-            hasTag.setBlogId(blog.getBlogId());
+            hasTag.setBlogId(newBlog.getBlogId());
 
             if (Objects.isNull(tag)) {
                 tag = new Tag();
