@@ -70,7 +70,7 @@ public class FolderServiceImpl extends ServiceImpl<FolderMapper, Folder> impleme
         //转换成vo
         FolderDetailVo folderDetailVo = BeanCopyUtils.copyBean(folder, FolderDetailVo.class);
 
-        FolderFillUtils.fillFolderDetailVo(folderDetailVo, userService, folderCollectService, blogService, hasTagService, tagService);
+        FolderFillUtils.fillFolderDetailVo(folderDetailVo, pageNumber, pageSize, userService, folderCollectService, blogService, hasTagService, tagService);
 
         return ResponseResult.okResult(folderDetailVo);
     }

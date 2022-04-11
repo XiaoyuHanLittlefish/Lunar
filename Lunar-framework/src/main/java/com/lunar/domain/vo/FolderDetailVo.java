@@ -5,7 +5,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
-import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -24,5 +23,5 @@ public class FolderDetailVo {
     //收藏夹创建时间戳
     private Date folderCreateTime;
     //收藏夹所包含博客
-    private List<HotBlogVo> blogVoList;
+    private PageVo page;
 }

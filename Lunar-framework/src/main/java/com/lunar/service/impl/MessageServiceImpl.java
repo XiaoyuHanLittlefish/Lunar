@@ -1,11 +1,12 @@
 package com.lunar.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lunar.domain.ResponseResult;
 import com.lunar.domain.entity.Message;
-import com.lunar.domain.entity.User;
 import com.lunar.domain.vo.MessageVo;
+import com.lunar.domain.vo.PageVo;
 import com.lunar.domain.vo.SenderVo;
 import com.lunar.enums.AppHttpCodeEnum;
 import com.lunar.mapper.MessageMapper;
@@ -36,18 +37,21 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
     @Override
     public ResponseResult getMessageSenderList(Integer userId, Integer pageNumber, Integer pageSize) {
         LambdaQueryWrapper<Message> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(Message::getMessageReceiverId, userId);
+        queryWrapper.eq(Message::getMessageReceiverId, userId)
+                        .or().eq(Message::getMessageSenderId, userId);
         queryWrapper.orderByDesc(Message::getMessageCreateTime);
 
-        List<User> senderList = list(queryWrapper).stream()
-                .map(Message -> userService.getById(Message.getMessageSenderId()))
-                .skip((long) (pageNumber - 1) * pageSize)
-                .limit((long) pageSize)
+        Page<Message> page = new Page<>(pageNumber, pageSize);
+
+        List<SenderVo> senderVoList = page(page, queryWrapper).getRecords().stream()
+                .map(Message -> (Message.getMessageSenderId().equals(userId)) ? Message.getMessageReceiverId() : Message.getMessageSenderId())
+                .distinct()
+                .map(MessageSenderId -> userService.getById(MessageSenderId))
+                .map(User -> BeanCopyUtils.copyBean(User, SenderVo.class))
                 .collect(Collectors.toList());
 
-        List<SenderVo> senderVoList = BeanCopyUtils.copyBeanList(senderList, SenderVo.class);
 
-        return ResponseResult.okResult(senderVoList);
+        return ResponseResult.okResult(new PageVo(senderVoList, page.getTotal()));
     }
 
     @Override
