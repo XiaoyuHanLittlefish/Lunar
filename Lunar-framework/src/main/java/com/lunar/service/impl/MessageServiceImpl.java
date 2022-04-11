@@ -7,7 +7,6 @@ import com.lunar.domain.ResponseResult;
 import com.lunar.domain.entity.Message;
 import com.lunar.domain.vo.MessageVo;
 import com.lunar.domain.vo.PageVo;
-import com.lunar.domain.vo.SenderVo;
 import com.lunar.enums.AppHttpCodeEnum;
 import com.lunar.mapper.MessageMapper;
 import com.lunar.service.MessageService;
@@ -43,15 +42,17 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
 
         Page<Message> page = new Page<>(pageNumber, pageSize);
 
-        List<SenderVo> senderVoList = page(page, queryWrapper).getRecords().stream()
-                .map(Message -> (Message.getMessageSenderId().equals(userId)) ? Message.getMessageReceiverId() : Message.getMessageSenderId())
-                .distinct()
-                .map(MessageSenderId -> userService.getById(MessageSenderId))
-                .map(User -> BeanCopyUtils.copyBean(User, SenderVo.class))
+        List<MessageVo> messageVoList = page(page, queryWrapper).getRecords().stream()
+                .map(Message -> BeanCopyUtils.copyBean(Message, MessageVo.class))
                 .collect(Collectors.toList());
 
+        for (MessageVo messageVo : messageVoList) {
+            messageVo.setMessageSenderName(userService.getById(messageVo.getMessageSenderId()).getUserName());
 
-        return ResponseResult.okResult(new PageVo(senderVoList, page.getTotal()));
+            messageVo.setMessageReceiverName(userService.getById(messageVo.getMessageReceiverId()).getUserName());
+        }
+
+        return ResponseResult.okResult(new PageVo(messageVoList, page.getTotal()));
     }
 
     @Override
@@ -64,6 +65,12 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
 
         List<Message> messageList = list(queryWrapper);
         List<MessageVo> messageVoList = BeanCopyUtils.copyBeanList(messageList, MessageVo.class);
+
+        for (MessageVo messageVo : messageVoList) {
+            messageVo.setMessageSenderName(userService.getById(messageVo.getMessageSenderId()).getUserName());
+
+            messageVo.setMessageReceiverName(userService.getById(messageVo.getMessageReceiverId()).getUserName());
+        }
 
         return ResponseResult.okResult(messageVoList);
     }

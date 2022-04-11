@@ -10,10 +10,9 @@ import com.lunar.domain.entity.UserFollow;
 import com.lunar.domain.vo.*;
 import com.lunar.enums.AppHttpCodeEnum;
 import com.lunar.mapper.UserMapper;
-import com.lunar.service.BlogService;
-import com.lunar.service.UserFollowService;
-import com.lunar.service.UserService;
+import com.lunar.service.*;
 import com.lunar.utils.BeanCopyUtils;
+import com.lunar.utils.BlogFillUtils;
 import com.lunar.utils.FileUtils;
 import com.lunar.utils.UserFillUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +37,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Autowired
     private BlogService blogService;
+
+    @Autowired
+    private HasTagService hasTagService;
+
+    @Autowired
+    private TagService tagService;
 
     @Override
     public ResponseResult getUser(Integer userId) {
@@ -217,6 +222,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         List<HotBlogVo> blogVoList = page.getRecords().stream()
                 .map(Blog -> BeanCopyUtils.copyBean(Blog, HotBlogVo.class))
                 .collect(Collectors.toList());
+
+        for (HotBlogVo blogVo : blogVoList) {
+            //根据blogAuthorId查询作者昵称
+            blogVo.setBlogAuthorName(getById(blogVo.getBlogAuthorId()).getUserName());
+            //根据blogId查询标签列表
+            blogVo.setBlogTags(BlogFillUtils.getBlogTags(blogVo.getBlogId(), hasTagService, tagService));
+        }
 
         PageVo pageVo = new PageVo(blogVoList, page.getTotal());
         return ResponseResult.okResult(pageVo);
