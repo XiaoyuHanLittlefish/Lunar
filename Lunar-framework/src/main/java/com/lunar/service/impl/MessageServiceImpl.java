@@ -60,7 +60,7 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
         //根据userId和toId查找信息列表
         LambdaQueryWrapper<Message> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.and(i -> i.eq(Message::getMessageSenderId, userId).eq(Message::getMessageReceiverId, toId))
-                .or().and(i -> i.eq(Message::getMessageSenderId, toId).eq(Message::getMessageReceiverId, userId));
+                .or(i -> i.eq(Message::getMessageSenderId, toId).eq(Message::getMessageReceiverId, userId));
         queryWrapper.orderByDesc(Message::getMessageCreateTime);
 
         List<Message> messageList = list(queryWrapper);
