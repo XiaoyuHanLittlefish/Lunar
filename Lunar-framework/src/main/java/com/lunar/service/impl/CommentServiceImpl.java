@@ -5,9 +5,11 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lunar.domain.ResponseResult;
 import com.lunar.domain.entity.Comment;
+import com.lunar.domain.entity.CommentLike;
 import com.lunar.domain.vo.CommentVo;
 import com.lunar.domain.vo.PageVo;
 import com.lunar.mapper.CommentMapper;
+import com.lunar.service.CommentLikeService;
 import com.lunar.service.CommentService;
 import com.lunar.service.UserService;
 import com.lunar.utils.CommentFillUtils;
@@ -31,6 +33,9 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
 
     @Autowired
     private CommentService commentService;
+
+    @Autowired
+    private CommentLikeService commentLikeService;
 
     @Override
     public ResponseResult getBlogCommentList(Integer blogId, Integer pageNumber, Integer pageSize) {
@@ -67,6 +72,9 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
     @Override
     public ResponseResult deleteComment(Integer commentId) {
         // TODO 检查是否有权限
+        LambdaQueryWrapper<CommentLike> commentLikeLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        commentLikeLambdaQueryWrapper.eq(CommentLike::getCommentId, commentId);
+        commentLikeService.remove(commentLikeLambdaQueryWrapper);
 
         removeById(commentId);
 

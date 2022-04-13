@@ -78,6 +78,10 @@ public class FolderServiceImpl extends ServiceImpl<FolderMapper, Folder> impleme
     @Override
     public ResponseResult deleteFolder(Integer folderId) {
         //TODO: 检查权限
+        LambdaQueryWrapper<FolderCollect> folderCollectLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        folderCollectLambdaQueryWrapper.eq(FolderCollect::getFolderId, folderId);
+        folderCollectService.remove(folderCollectLambdaQueryWrapper);
+
         removeById(folderId);
 
         return ResponseResult.okResult();
