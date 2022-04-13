@@ -146,6 +146,11 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
         if(Objects.isNull(blog)) {
             return ResponseResult.errorResult(AppHttpCodeEnum.NO_OPERATOR_AUTH.getCode(), AppHttpCodeEnum.NO_OPERATOR_AUTH.getMsg());
         }
+
+        LambdaQueryWrapper<HasTag> hasTagLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        hasTagLambdaQueryWrapper.eq(HasTag::getBlogId, blogId);
+        hasTagService.remove(hasTagLambdaQueryWrapper);
+
         removeById(blogId);
 
         return ResponseResult.okResult();
