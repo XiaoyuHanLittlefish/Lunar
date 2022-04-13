@@ -44,6 +44,9 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
     @Autowired
     private FolderService folderService;
 
+    @Autowired
+    private FolderCollectService folderCollectService;
+
     @Override
     public ResponseResult getBlogDetail(Integer blogId) {
         //根据blogId找到博客
@@ -150,6 +153,12 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
         LambdaQueryWrapper<HasTag> hasTagLambdaQueryWrapper = new LambdaQueryWrapper<>();
         hasTagLambdaQueryWrapper.eq(HasTag::getBlogId, blogId);
         hasTagService.remove(hasTagLambdaQueryWrapper);
+        LambdaQueryWrapper<BlogLike> blogLikeLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        blogLikeLambdaQueryWrapper.eq(BlogLike::getBlogId, blogId);
+        blogLikeService.remove(blogLikeLambdaQueryWrapper);
+        LambdaQueryWrapper<FolderCollect> folderCollectLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        folderCollectLambdaQueryWrapper.eq(FolderCollect::getBlogId, blogId);
+        folderCollectService.remove(folderCollectLambdaQueryWrapper);
 
         removeById(blogId);
 
