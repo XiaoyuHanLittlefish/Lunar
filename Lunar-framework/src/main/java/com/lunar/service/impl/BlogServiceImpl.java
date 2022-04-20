@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * (Blog)表服务实现类
@@ -56,8 +57,10 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
         updateById(blog);
         //封装成vo
         BlogDetailVo blogDetailVo = BeanCopyUtils.copyBean(blog, BlogDetailVo.class);
-        //根据blogAuthorId查询作者昵称
-        blogDetailVo.setBlogAuthorName(userService.getById(blogDetailVo.getBlogAuthorId()).getUserName());
+        //根据blogAuthorId查询作者昵称和头像路径
+        User user = userService.getById(blogDetailVo.getBlogAuthorId());
+        blogDetailVo.setBlogAuthorName(user.getUserName());
+        blogDetailVo.setUserAvatar(user.getUserAvatar());
         //根据blogId查询标签列表
         blogDetailVo.setBlogTags(BlogFillUtils.getBlogTags(blogId, hasTagService, tagService));
 
@@ -293,7 +296,7 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
         }
 
         //判断是否已经点踩过了
-        if(!isLikeBlog(userId, blogId)) {
+        if(!isDislikeBlog(userId, blogId)) {
             return ResponseResult.errorResult(AppHttpCodeEnum.SYSTEM_ERROR.getCode(), "还没有点踩博客");
         }
 
@@ -357,6 +360,10 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
             return ResponseResult.errorResult(AppHttpCodeEnum.NO_OPERATOR_AUTH.getCode(), "未找到收藏夹");
         }
 
+        Blog blog = getById(blogId);
+        blog.setBlogCollectNumber(blog.getBlogCollectNumber() + 1);
+        updateById(blog);
+
         return folderService.collectBlogToFolder(blogId, folderId);
     }
 
@@ -379,6 +386,38 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
         }
 
         return folderService.cancelCollectBlogToFolder(blogId, folderId);
+    }
+
+    @Override
+    public ResponseResult hasCollectBlog(Integer blogId) {
+        //获取token中的userId
+        Integer userId = UserFillUtils.getUserIdFromToken();
+        //如果没有找到userId 返回需要登陆
+        if(Objects.isNull(userId)) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.NEED_LOGIN.getCode(), AppHttpCodeEnum.NEED_LOGIN.getMsg());
+        }
+
+        LambdaQueryWrapper<FolderCollect> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(FolderCollect::getBlogId, blogId);
+
+        List<Integer> authorIdList = folderCollectService.list(queryWrapper).stream()
+                .map(FolderCollect::getFolderId)
+                .map(FolderId -> folderService.getById(FolderId))
+                .map(Folder::getFolderAuthorId)
+                .collect(Collectors.toList());
+
+        HasCollectVo hasCollectVo = new HasCollectVo(false);
+        for (Integer authorId : authorIdList) {
+            if(Objects.isNull(authorId)) {
+                continue;
+            }
+            if(userId.equals(authorId)) {
+                hasCollectVo.setHasCollect(true);
+                break;
+            }
+        }
+
+        return ResponseResult.okResult(hasCollectVo);
     }
 
     private Boolean isLikeBlog(Integer userId, Integer blogId) {

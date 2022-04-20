@@ -17,11 +17,12 @@ import java.util.List;
 public class BlogDetailVo {
     //博客id(主键)
     private Integer blogId;
-
     //博客的作者用户id(外键)
     private Integer blogAuthorId;
     //博客的作者用户昵称
     private String blogAuthorName;
+    //用户头像路径
+    private String userAvatar;
     //博客内容
     private String blogContent;
     //博客的标题

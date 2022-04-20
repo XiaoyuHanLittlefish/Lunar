@@ -1,12 +1,10 @@
 package com.lunar.controller;
 
 import com.lunar.domain.ResponseResult;
+import com.lunar.domain.vo.ReadMessageVo;
 import com.lunar.service.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/message")
@@ -30,4 +28,13 @@ public class MessageController {
         return messageService.sendMessageToUser(toId, messageContent);
     }
 
+    @DeleteMapping("/{messageId}")
+    public ResponseResult deleteMessage(@PathVariable("messageId") Integer messageId) {
+        return messageService.deleteMessage(messageId);
+    }
+
+    @PutMapping
+    public ResponseResult readMessages(@RequestBody ReadMessageVo readMessageVo) {
+        return messageService.readMessages(readMessageVo);
+    }
 }

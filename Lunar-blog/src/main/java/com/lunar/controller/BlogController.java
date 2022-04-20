@@ -81,4 +81,9 @@ public class BlogController {
                                                     Integer folderId) {
         return blogService.cancelCollectBlogToFolder(blogId, folderId);
     }
+
+    @GetMapping("/{blogId}/collect")
+    public ResponseResult hasCollectBlog(@PathVariable("blogId") Integer blogId) {
+        return blogService.hasCollectBlog(blogId);
+    }
 }

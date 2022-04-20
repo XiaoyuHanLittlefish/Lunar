@@ -201,13 +201,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             return ResponseResult.errorResult(AppHttpCodeEnum.NEED_LOGIN);
         }
 
-        HasFollowVo hasFollowVo = new HasFollowVo();
+        HasFollowVo hasFollowVo = new HasFollowVo(false);
 
         LambdaQueryWrapper<UserFollow> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(UserFollow::getAuthorId, userIdFromToken);
         queryWrapper.eq(UserFollow::getToId, userId);
         UserFollow userFollow = userFollowService.getOne(queryWrapper);
-        hasFollowVo.setHasFollow(Objects.isNull(userFollow));
+        hasFollowVo.setHasFollow(!Objects.isNull(userFollow));
 
         return ResponseResult.okResult(hasFollowVo);
     }

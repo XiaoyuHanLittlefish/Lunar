@@ -7,6 +7,7 @@ import com.lunar.domain.ResponseResult;
 import com.lunar.domain.entity.Message;
 import com.lunar.domain.vo.MessageVo;
 import com.lunar.domain.vo.PageVo;
+import com.lunar.domain.vo.ReadMessageVo;
 import com.lunar.enums.AppHttpCodeEnum;
 import com.lunar.mapper.MessageMapper;
 import com.lunar.service.MessageService;
@@ -64,6 +65,12 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
         queryWrapper.orderByDesc(Message::getMessageCreateTime);
 
         List<Message> messageList = list(queryWrapper);
+        for (Message message : messageList) {
+            if(message.getMessageReceiverId().equals(userId)) {
+                message.setMessageIfRead(1);
+                updateById(message);
+            }
+        }
         List<MessageVo> messageVoList = BeanCopyUtils.copyBeanList(messageList, MessageVo.class);
 
         for (MessageVo messageVo : messageVoList) {
@@ -92,5 +99,43 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
         save(message);
 
         return ResponseResult.okResult(message);
+    }
+
+    @Override
+    public ResponseResult deleteMessage(Integer messageId) {
+        //获取token中的userId
+        Integer userId = UserFillUtils.getUserIdFromToken();
+
+        //如果没有找到userId 返回需要登陆
+        if(Objects.isNull(userId)) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.NEED_LOGIN.getCode(), AppHttpCodeEnum.NEED_LOGIN.getMsg());
+        }
+        LambdaQueryWrapper<Message> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Message::getMessageId, messageId);
+        remove(queryWrapper);
+        return ResponseResult.okResult();
+    }
+
+    @Override
+    public ResponseResult readMessages(ReadMessageVo readMessageVo) {
+        //获取token中的userId
+        Integer userId = UserFillUtils.getUserIdFromToken();
+
+        //如果没有找到userId 返回需要登陆
+        if(Objects.isNull(userId)) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.NEED_LOGIN.getCode(), AppHttpCodeEnum.NEED_LOGIN.getMsg());
+        }
+        if(Objects.isNull(readMessageVo)) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.SYSTEM_ERROR);
+        }
+        for (Integer messageId : readMessageVo.getReadMessageIds()) {
+            Message message = getById(messageId);
+            if(Objects.isNull(message)) {
+                continue;
+            }
+            message.setMessageIfRead(1);
+            updateById(message);
+        }
+        return ResponseResult.okResult();
     }
 }

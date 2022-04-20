@@ -77,7 +77,13 @@ public class FolderServiceImpl extends ServiceImpl<FolderMapper, Folder> impleme
 
     @Override
     public ResponseResult deleteFolder(Integer folderId) {
-        //TODO: 检查权限
+        //获取token中的userId
+        Integer userId = UserFillUtils.getUserIdFromToken();
+
+        //如果没有找到userId 返回需要登陆
+        if(Objects.isNull(userId)) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.NEED_LOGIN.getCode(), AppHttpCodeEnum.NEED_LOGIN.getMsg());
+        }
         LambdaQueryWrapper<FolderCollect> folderCollectLambdaQueryWrapper = new LambdaQueryWrapper<>();
         folderCollectLambdaQueryWrapper.eq(FolderCollect::getFolderId, folderId);
         folderCollectService.remove(folderCollectLambdaQueryWrapper);
@@ -89,7 +95,13 @@ public class FolderServiceImpl extends ServiceImpl<FolderMapper, Folder> impleme
 
     @Override
     public ResponseResult updateFolderName(Integer folderId, String folderName) {
-        //TODO: 检查权限
+        //获取token中的userId
+        Integer userId = UserFillUtils.getUserIdFromToken();
+
+        //如果没有找到userId 返回需要登陆
+        if(Objects.isNull(userId)) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.NEED_LOGIN.getCode(), AppHttpCodeEnum.NEED_LOGIN.getMsg());
+        }
 
         //根据id查找收藏夹
         Folder folder = getById(folderId);
