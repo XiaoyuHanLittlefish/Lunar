@@ -420,6 +420,74 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
         return ResponseResult.okResult(hasCollectVo);
     }
 
+    @Override
+    public ResponseResult adminGetBlogList() {
+        //获取token中的userId
+        Integer userId = UserFillUtils.getUserIdFromToken();
+        //如果没有找到userId 返回需要登陆
+        if(Objects.isNull(userId)) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.NEED_LOGIN.getCode(), AppHttpCodeEnum.NEED_LOGIN.getMsg());
+        }
+        User user = userService.getById(userId);
+        //检查用户是否是管理员
+        if(!user.getUserLimit().equals(0)) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.NO_OPERATOR_AUTH);
+        }
+
+        LambdaQueryWrapper<Blog> queryWrapper = new LambdaQueryWrapper<>();
+        List<Blog> blogList = list(queryWrapper);
+
+        return ResponseResult.okResult(blogList);
+    }
+
+    @Override
+    public ResponseResult adminDeleteBlog(Integer blogId) {
+        //获取token中的userId
+        Integer userId = UserFillUtils.getUserIdFromToken();
+        //如果没有找到userId 返回需要登陆
+        if(Objects.isNull(userId)) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.NEED_LOGIN.getCode(), AppHttpCodeEnum.NEED_LOGIN.getMsg());
+        }
+        User user = userService.getById(userId);
+        //检查用户是否是管理员
+        if(!user.getUserLimit().equals(0)) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.NO_OPERATOR_AUTH);
+        }
+
+        LambdaQueryWrapper<HasTag> hasTagLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        hasTagLambdaQueryWrapper.eq(HasTag::getBlogId, blogId);
+        hasTagService.remove(hasTagLambdaQueryWrapper);
+        LambdaQueryWrapper<BlogLike> blogLikeLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        blogLikeLambdaQueryWrapper.eq(BlogLike::getBlogId, blogId);
+        blogLikeService.remove(blogLikeLambdaQueryWrapper);
+        LambdaQueryWrapper<FolderCollect> folderCollectLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        folderCollectLambdaQueryWrapper.eq(FolderCollect::getBlogId, blogId);
+        folderCollectService.remove(folderCollectLambdaQueryWrapper);
+
+        removeById(blogId);
+
+        return ResponseResult.okResult();
+    }
+
+    @Override
+    public ResponseResult adminUpdateBlog(Integer blogId, Blog blog) {
+        //获取token中的userId
+        Integer userId = UserFillUtils.getUserIdFromToken();
+        //如果没有找到userId 返回需要登陆
+        if(Objects.isNull(userId)) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.NEED_LOGIN.getCode(), AppHttpCodeEnum.NEED_LOGIN.getMsg());
+        }
+        User user = userService.getById(userId);
+        //检查用户是否是管理员
+        if(!user.getUserLimit().equals(0)) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.NO_OPERATOR_AUTH);
+        }
+
+        updateById(blog);
+
+        return ResponseResult.okResult();
+    }
+
     private Boolean isLikeBlog(Integer userId, Integer blogId) {
         LambdaQueryWrapper<BlogLike> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(BlogLike::getUserId, userId);

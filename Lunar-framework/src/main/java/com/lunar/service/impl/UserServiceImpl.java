@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lunar.domain.ResponseResult;
 import com.lunar.domain.entity.Blog;
+import com.lunar.domain.entity.BlogLike;
 import com.lunar.domain.entity.User;
 import com.lunar.domain.entity.UserFollow;
 import com.lunar.domain.vo.*;
@@ -43,6 +44,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Autowired
     private TagService tagService;
+
+    @Autowired
+    private BlogLikeService blogLikeService;
+
+    @Autowired
+    private CommentLikeService commentLikeService;
+
+    @Autowired
+    private FolderService folderService;
 
     @Override
     public ResponseResult getUser(Integer userId) {
@@ -232,5 +242,45 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         PageVo pageVo = new PageVo(blogVoList, page.getTotal());
         return ResponseResult.okResult(pageVo);
+    }
+
+    @Override
+    public ResponseResult adminGetUserList() {
+        //获取token中的userId
+        Integer userId = UserFillUtils.getUserIdFromToken();
+        //如果没有找到userId 返回需要登陆
+        if(Objects.isNull(userId)) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.NEED_LOGIN.getCode(), AppHttpCodeEnum.NEED_LOGIN.getMsg());
+        }
+        User user = getById(userId);
+        //检查用户是否是管理员
+        if(!user.getUserLimit().equals(0)) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.NO_OPERATOR_AUTH);
+        }
+        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+        List<User> userList = list(queryWrapper);
+
+        return ResponseResult.okResult(userList);
+    }
+
+    @Override
+    public ResponseResult adminDeleteUser(Integer userId) {
+        //获取token中的userId
+        Integer userIdFromToken = UserFillUtils.getUserIdFromToken();
+        //如果没有找到userId 返回需要登陆
+        if(Objects.isNull(userIdFromToken)) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.NEED_LOGIN.getCode(), AppHttpCodeEnum.NEED_LOGIN.getMsg());
+        }
+        User user = getById(userIdFromToken);
+        //检查用户是否是管理员
+        if(!user.getUserLimit().equals(0)) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.NO_OPERATOR_AUTH);
+        }
+
+        LambdaQueryWrapper<BlogLike> blogLikeLambdaQueryWrapper = new LambdaQueryWrapper<>();
+
+        removeById(userId);
+
+        return null;
     }
 }

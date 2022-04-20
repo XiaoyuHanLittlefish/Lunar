@@ -41,4 +41,10 @@ public interface BlogService extends IService<Blog> {
     ResponseResult cancelCollectBlogToFolder(Integer blogId, Integer folderId);
 
     ResponseResult hasCollectBlog(Integer blogId);
+
+    ResponseResult adminGetBlogList();
+
+    ResponseResult adminDeleteBlog(Integer blogId);
+
+    ResponseResult adminUpdateBlog(Integer blogId, Blog blog);
 }

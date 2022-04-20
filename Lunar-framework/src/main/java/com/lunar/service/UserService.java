@@ -33,4 +33,8 @@ public interface UserService extends IService<User> {
     ResponseResult hasFollowUser(Integer userId);
 
     ResponseResult getBlogListOfUser(Integer userId, Integer pageNumber, Integer pageSize);
+
+    ResponseResult adminGetUserList();
+
+    ResponseResult adminDeleteUser(Integer userId);
 }
