@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/admin/user")
-public class UserController {
+public class AdminUserController {
 
     @Autowired
     private UserService userService;

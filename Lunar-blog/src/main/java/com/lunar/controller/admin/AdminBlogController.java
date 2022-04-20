@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/admin/blog")
-public class BlogController {
+public class AdminBlogController {
 
     @Autowired
     private BlogService blogService;
