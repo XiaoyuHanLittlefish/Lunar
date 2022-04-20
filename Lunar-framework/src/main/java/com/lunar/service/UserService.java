@@ -37,4 +37,6 @@ public interface UserService extends IService<User> {
     ResponseResult adminGetUserList();
 
     ResponseResult adminDeleteUser(Integer userId);
+
+    ResponseResult adminUpdateUser(Integer userId, User user);
 }

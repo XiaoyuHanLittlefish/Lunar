@@ -18,6 +18,8 @@ public class CommentVo {
     private Integer commentAuthorId;
     //评论的所属者用户昵称
     private String commentAuthorName;
+    //评论的所属者用户头像
+    private String commentAuthorAvatar;
     //评论的所属博客id(外键)
     private Integer commentBlogId;
     //评论的具体内容

@@ -134,6 +134,11 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
             hasTagService.save(hasTag);
         }
 
+        //用户文章+1
+        User user = userService.getById(userId);
+        user.setUserArticleNumber(user.getUserArticleNumber() + 1);
+        userService.updateById(user);
+
         return ResponseResult.okResult();
     }
 
@@ -164,6 +169,11 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
         folderCollectService.remove(folderCollectLambdaQueryWrapper);
 
         removeById(blogId);
+
+        //用户文章-1
+        User user = userService.getById(userId);
+        user.setUserArticleNumber(user.getUserArticleNumber() - 1);
+        userService.updateById(user);
 
         return ResponseResult.okResult();
     }
@@ -203,6 +213,10 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
         //判断是否已经点赞过了
         if(isLikeBlog(userId, blogId)) {
             return ResponseResult.errorResult(AppHttpCodeEnum.SYSTEM_ERROR.getCode(), "已经点赞过了");
+        }
+
+        if(isDislikeBlog(userId, blogId)) {
+            cancelDislikeBlog(blogId);
         }
 
         blog.setBlogLikeNumber(blog.getBlogLikeNumber() + 1);
@@ -267,6 +281,10 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements Bl
         //判断是否已经点踩过了
         if(isDislikeBlog(userId, blogId)) {
             return ResponseResult.errorResult(AppHttpCodeEnum.SYSTEM_ERROR.getCode(), "已经点踩过了");
+        }
+
+        if(isLikeBlog(userId, blogId)) {
+            cancelLikeBlog(blogId);
         }
 
         blog.setBlogDislikeNumber(blog.getBlogDislikeNumber() + 1);

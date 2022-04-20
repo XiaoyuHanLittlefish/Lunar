@@ -2,6 +2,7 @@ package com.lunar.utils;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.lunar.domain.entity.Comment;
+import com.lunar.domain.entity.User;
 import com.lunar.domain.vo.CommentVo;
 import com.lunar.service.CommentService;
 import com.lunar.service.UserService;
@@ -23,8 +24,11 @@ public class CommentFillUtils {
     }
 
     private static void fillCommentVo(CommentVo commentVo, CommentService commentService,UserService userService) {
-        //查找评论作者昵称
-        String userName = userService.getById(commentVo.getCommentAuthorId()).getUserName();
+        //查找评论作者昵称、头像
+        User user = userService.getById(commentVo.getCommentAuthorId());
+        commentVo.setCommentAuthorName(user.getUserName());
+        commentVo.setCommentAuthorAvatar(user.getUserAvatar());
+
         //查找commentVo的children 按照时间倒序排序
         LambdaQueryWrapper<Comment> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(Comment::getCommentParentId, commentVo.getCommentId());

@@ -1,9 +1,7 @@
 package com.lunar.controller.admin;
 
 import com.lunar.domain.ResponseResult;
-import com.lunar.domain.entity.Blog;
-import com.lunar.domain.vo.NewBlogVo;
-import com.lunar.service.UserFollowService;
+import com.lunar.domain.entity.User;
 import com.lunar.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -25,15 +23,10 @@ public class UserController {
         return userService.adminDeleteUser(userId);
     }
 
-    @PutMapping("/{blogId}")
-    public ResponseResult adminUpdateBlog(@PathVariable("blogId") Integer blogId,
-                                          @RequestBody Blog blog) {
-        return blogService.adminUpdateBlog(blogId, blog);
-    }
-
-    @PostMapping
-    public ResponseResult adminAddNewBlog(@RequestBody NewBlogVo blog) {
-        return blogService.addNewBlog(blog);
+    @PutMapping("/{userId}")
+    public ResponseResult adminUpdateBlog(@PathVariable("userId") Integer userId,
+                                          @RequestBody User user) {
+        return userService.adminUpdateUser(userId, user);
     }
 
 }

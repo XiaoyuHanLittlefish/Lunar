@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.lunar.domain.ResponseResult;
 import com.lunar.domain.entity.Blog;
-import com.lunar.domain.entity.BlogLike;
 import com.lunar.domain.entity.User;
 import com.lunar.domain.entity.UserFollow;
 import com.lunar.domain.vo.*;
@@ -84,7 +83,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         userFollow.setToId(toId);
         //存储到数据库
         userFollowService.save(userFollow);
-
+        //对方粉丝+1
+        User to = getById(toId);
+        to.setUserFansNumber(to.getUserFansNumber() + 1);
+        updateById(to);
+        //用户关注+1
+        User user = getById(userId);
+        user.setUserFollowNumber(user.getUserFollowNumber() + 1);
+        updateById(user);
         return ResponseResult.okResult();
     }
 
@@ -98,7 +104,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         queryWrapper.eq(UserFollow::getToId, toId);
 
         userFollowService.remove(queryWrapper);
-
+        //对方粉丝-1
+        User to = getById(toId);
+        to.setUserFansNumber(to.getUserFansNumber() - 1);
+        updateById(to);
+        //用户关注-1
+        User user = getById(userId);
+        user.setUserFollowNumber(user.getUserFollowNumber() - 1);
+        updateById(user);
         return ResponseResult.okResult();
     }
 
@@ -277,10 +290,25 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             return ResponseResult.errorResult(AppHttpCodeEnum.NO_OPERATOR_AUTH);
         }
 
-        LambdaQueryWrapper<BlogLike> blogLikeLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        return ResponseResult.errorResult(AppHttpCodeEnum.SYSTEM_ERROR.getCode(), "暂无此功能");
+    }
 
-        removeById(userId);
+    @Override
+    public ResponseResult adminUpdateUser(Integer userId, User user) {
+        //获取token中的userId
+        Integer userIdFromToken = UserFillUtils.getUserIdFromToken();
+        //如果没有找到userId 返回需要登陆
+        if(Objects.isNull(userIdFromToken)) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.NEED_LOGIN.getCode(), AppHttpCodeEnum.NEED_LOGIN.getMsg());
+        }
+        User userFromToken = getById(userIdFromToken);
+        //检查用户是否是管理员
+        if(!userFromToken.getUserLimit().equals(0)) {
+            return ResponseResult.errorResult(AppHttpCodeEnum.NO_OPERATOR_AUTH);
+        }
 
-        return null;
+        updateById(user);
+
+        return ResponseResult.okResult();
     }
 }
